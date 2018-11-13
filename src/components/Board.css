@@ -1,0 +1,24 @@
+.board {
+    position: relative;
+    outline: 0px;
+    border-left: 1px solid lightgrey;
+    border-top: 1px solid lightgrey;
+    width: 301px;
+    height: 601px;
+}
+.empty {
+    width: 30px;
+    height: 30px;
+    border-right: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
+    position: absolute;
+
+}
+.block {
+    background-color: red;
+    border-radius: 3px;
+    height: 29px;
+    width: 29px;
+    position: absolute;
+    z-index: 10;
+}
