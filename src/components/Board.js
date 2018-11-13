@@ -20,15 +20,19 @@ class Board extends Component {
             anchorY: 0,
             interval: -1
         }
-        console.log(this.state.board)
         this.renderPiece = this.renderPiece.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
         this.handleInput = this.handleInput.bind(this);
         this.tick = this.tick.bind(this);
+        this.boardRef = React.createRef();
     }
     componentDidMount() {
-        let interval = setInterval(this.tick, 100);
+        let interval = setInterval(this.tick, 200);
         this.setState({interval});
+        this.boardRef.current.focus();
+    }
+    canMove({direction, shape, orientation}) {
+
     }
     newPiece() {
         this.setState({anchorX: 4, anchorY: 0});
@@ -45,12 +49,11 @@ class Board extends Component {
             if (clears)
                 clearLines.push(row);
         }
-        console.log(clearLines);
         while (clearLines[0]) {
             let line = clearLines.pop();
             for (let n = line; n > 0; n--) {
                 board[n] = board[n - 1];
-                console.log(board[n]);
+
             }
             board[0] = [0,0,0,0,0,0,0,0,0,0];
         }
@@ -115,7 +118,7 @@ class Board extends Component {
     render() {
         return (
             <div className="Board">
-                <div className="board" tabIndex="0" onKeyDown={e => this.handleInput(e.key)}>
+                <div className="board" tabIndex="0" ref={this.boardRef} onKeyDown={e => this.handleInput(e.key)}>
                     {this.renderBoard()}
                     {this.renderPiece()}
                 </div>
