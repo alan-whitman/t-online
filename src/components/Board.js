@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './Board.css';
 import { convertNumToClass } from '../controllers/shape_styles';
-import { clearTopLine } from '../controllers/board_controller';
+import { clearTopLine, calculatePotentialBlock, checkCollision } from '../controllers/board_controller';
+import { getPieceBlocks } from '../controllers/tetrominos';
 const BLOCK_SIZE = 30;
 
 class Board extends Component {
@@ -17,14 +18,13 @@ class Board extends Component {
                     board[x][y] = 0;
             }
         }
-        console.log(board);
         this.state = {
             board,
             anchorX: 5,
-            anchorY: 20,
+            anchorY: 22,
             interval: -1,
             paused: false,
-            speed: 100
+            speed: 200
         }
         this.renderPiece = this.renderPiece.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
@@ -42,7 +42,9 @@ class Board extends Component {
 
     }
     newPiece() {
-        this.setState({anchorX: 5, anchorY: 20});
+        this.setState({anchorX: 5, anchorY: 22});
+    }
+    hardDrop() {
     }
     pause() {
         if (!this.state.paused) {
@@ -50,8 +52,10 @@ class Board extends Component {
             this.setState({paused: true})
         }
         else {
+            this.tick();
             let interval = setInterval(this.tick, this.state.speed);
             this.setState({interval, paused: false})
+            this.boardRef.current.focus();
         }
      
     }
@@ -95,30 +99,58 @@ class Board extends Component {
             this.setState({anchorY: this.state.anchorY - 1});
     }
     handleInput(key) {
+        const { board, anchorX, anchorY } = this.state;
+        let potentialBlock;
+        if (this.state.paused) {
+            if(key === ' ') {
+                return this.pause();
+            }
+            else {
+                return;
+            
+            }
+        }
         switch (key) {
             case 'ArrowLeft':
-                if (this.state.anchorX > 1)
-                    this.setState({anchorX: this.state.anchorX - 1});
+                potentialBlock = calculatePotentialBlock('LEFT', anchorX, anchorY);
+                if (checkCollision(board, potentialBlock))
+                    this.setState({anchorX: anchorX - 1});
                 break;
             case 'ArrowRight':
-                if (this.state.anchorX < 9)
-                    this.setState({anchorX: this.state.anchorX + 1});
+                potentialBlock = calculatePotentialBlock('RIGHT', anchorX, anchorY);
+                if (checkCollision(board, potentialBlock))
+                    this.setState({anchorX: anchorX + 1});
                 break;
             case 'ArrowUp':
+                this.hardDrop();
                 break;
             case 'ArrowDown':
+                potentialBlock = calculatePotentialBlock('DOWN', anchorX, anchorY);
+                if (checkCollision(board, potentialBlock))
+                    this.setState({anchorY: anchorY - 1});
+                break;
+            case ' ':
+                this.pause();
                 break;
             default:
                 return;
         }
     }
     renderPiece() {
-        let piece = [];
-        piece.push(<div key="0" className="red-block" style={{left: (this.state.anchorX) * BLOCK_SIZE, top: (20 - this.state.anchorY) * BLOCK_SIZE }} />)
-        piece.push(<div key="1" className="red-block" style={{left: (this.state.anchorX + 1) * BLOCK_SIZE, top: (20 - this.state.anchorY) * BLOCK_SIZE }} />)
-        piece.push(<div key="2" className="red-block" style={{left: (this.state.anchorX) * BLOCK_SIZE, top: (21 - this.state.anchorY) * BLOCK_SIZE }} />)
-        piece.push(<div key="3" className="red-block" style={{left: (this.state.anchorX + 1) * BLOCK_SIZE, top: (21 - this.state.anchorY) * BLOCK_SIZE }} />)
-        return piece;
+        // const { piece } = this.state;
+        const piece = {shape: 'T', orientation: 0, x: 5, y: 22}
+        let renderCoords = getPieceBlocks(piece);
+        let pieceRender = [];
+        for (let i = 0; i < renderCoords.length; i++) {
+            pieceRender.push(<div key="0" className={convertNumToClass(1)} style={{left: renderCoords[i].x * BLOCK_SIZE, top: renderCoords[i].y * BLOCK_SIZE}} />)
+        }
+        
+
+        // piece.push(<div key="0" className="red-block" style={{left: (this.state.anchorX) * BLOCK_SIZE, top: (20 - this.state.anchorY) * BLOCK_SIZE }} />)
+        // piece.push(<div key="1" className="red-block" style={{left: (this.state.anchorX + 1) * BLOCK_SIZE, top: (20 - this.state.anchorY) * BLOCK_SIZE }} />)
+        // piece.push(<div key="2" className="red-block" style={{left: (this.state.anchorX) * BLOCK_SIZE, top: (21 - this.state.anchorY) * BLOCK_SIZE }} />)
+        // piece.push(<div key="3" className="red-block" style={{left: (this.state.anchorX + 1) * BLOCK_SIZE, top: (21 - this.state.anchorY) * BLOCK_SIZE }} />)
+        return pieceRender;
     }
     renderBoard() {
         const { board } = this.state;
@@ -135,7 +167,7 @@ class Board extends Component {
     render() {
         return (
             <div className="Board">
-                <button onClick={this.pause}>Pause</button>
+                <button onClick={this.pause}>Pause</button><br /><br />
                 <div className="board" tabIndex="0" ref={this.boardRef} onKeyDown={e => this.handleInput(e.key)}>
                     {this.renderBoard()}
                     {this.renderPiece()}
