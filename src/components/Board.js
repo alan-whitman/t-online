@@ -1,23 +1,26 @@
 import React, { Component } from 'react';
 import './Board.css';
+import { convertNumToClass } from '../controllers/shape_styles';
+const BLOCK_SIZE = 30;
 
 class Board extends Component {
     constructor() {
         super();
         let board = [];
-        for (let row = 0; row < 24; row++) {
-            board[row] = [];
-            for (let column = 0; column < 10; column++) {
-                if (row > 19)
-                    board[row][column] = -1;
+        for (let column = 0; column < 12; column++) {
+            board[column] = [];
+            for (let row = 0; row < 21; row++) {
+                if (row === 0 || column === 0 || column === 11)
+                    board[column][row] = -1;
                 else 
-                    board[row][column] = 0;
+                    board[column][row] = 0;
             }
         }
+        console.log(board);
         this.state = {
             board,
-            anchorX: 4,
-            anchorY: 0,
+            anchorX: 5,
+            anchorY: 20,
             interval: -1
         }
         this.renderPiece = this.renderPiece.bind(this);
@@ -27,8 +30,8 @@ class Board extends Component {
         this.boardRef = React.createRef();
     }
     componentDidMount() {
-        let interval = setInterval(this.tick, 200);
-        this.setState({interval});
+        // let interval = setInterval(this.tick, 200);
+        // this.setState({interval});
         this.boardRef.current.focus();
     }
     canMove({direction, shape, orientation}) {
@@ -95,22 +98,20 @@ class Board extends Component {
     }
     renderPiece() {
         let piece = [];
-        piece.push(<div key="0" className="block" style={{left: this.state.anchorX * 30, top: this.state.anchorY * 30 }} />)
-        piece.push(<div key="1" className="block" style={{left: (this.state.anchorX + 1) * 30, top: this.state.anchorY * 30 }} />)
-        piece.push(<div key="2" className="block" style={{left: this.state.anchorX * 30, top: (this.state.anchorY + 1) * 30 }} />)
-        piece.push(<div key="3" className="block" style={{left: (this.state.anchorX + 1) * 30, top: (this.state.anchorY + 1) * 30 }} />)
+        piece.push(<div key="0" className="red-block" style={{left: this.state.anchorX * BLOCK_SIZE, top: (20 - this.state.anchorY) * BLOCK_SIZE }} />)
+        piece.push(<div key="1" className="red-block" style={{left: (this.state.anchorX + 1) * BLOCK_SIZE, top: (20 - this.state.anchorY) * BLOCK_SIZE }} />)
+        piece.push(<div key="2" className="red-block" style={{left: this.state.anchorX * BLOCK_SIZE, top: (21 - this.state.anchorY) * BLOCK_SIZE }} />)
+        piece.push(<div key="3" className="red-block" style={{left: (this.state.anchorX + 1) * BLOCK_SIZE, top: (21 - this.state.anchorY) * BLOCK_SIZE }} />)
         return piece;
     }
     renderBoard() {
         const { board } = this.state;
         let boardGrid = [];
-        for (let row = 0; row < 20; row++) {
-            boardGrid[row] = [];
-            for (let column = 0; column < 10; column++) {
-                if (board[row][column] === 0)
-                    boardGrid[row][column] = <div key={'' + row + column} style={{left: column * 30, top: row * 30}} className="empty" />;
-                else
-                    boardGrid[row][column] = <div key={'' + row + column} style={{left: column * 30, top: row * 30}} className="block" />;
+        for (let column = 1; column < 11; column++) {
+            boardGrid[column] = [];
+            for (let row = 1; row < 21; row++) {
+                let style = convertNumToClass(board[column][row]);
+                boardGrid[column][row] = <div key={`row: ${row}, column: ${column}`} style={{top: (20 - row) * BLOCK_SIZE, left: (column - 1) * BLOCK_SIZE}} className={style} />;
             }
         }
         return boardGrid;
