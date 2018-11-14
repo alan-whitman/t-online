@@ -4,7 +4,7 @@ export const convertNumToClass = (num) => {
         1: 'red-block',
         2: 'green-block',
         3: 'blue-block',
-        '-1': 'black-block'
+        9: 'black-block'
     };
     return styleMap[num];
 }

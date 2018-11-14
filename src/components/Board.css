@@ -30,3 +30,11 @@
     position: absolute;
     z-index: 10;
 }
+.green-block {
+    background-color: green;
+    border-radius: 3px;
+    height: 29px;
+    width: 29px;
+    position: absolute;
+    z-index: 10;
+}

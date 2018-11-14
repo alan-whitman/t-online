@@ -32,8 +32,16 @@ const piece = {
     orientation: 0 // 0, 1, 2, 3, initial state is 0, order is clockwise
 }
 
+export const getBoardCode = (shape) => {
+    const codeDict = {
+        'T': 2,
+        'O': 1
+    };
+    return codeDict[shape];
+}
+
 export const getPieceBlocks = (piece) => {
-    console.log(piece)
+    // console.log(piece)
     const { shape, orientation, x, y } = piece;
     switch (shape) {
         case 'T':
