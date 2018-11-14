@@ -21,24 +21,18 @@ export const clearTopLine = (board) => {
 }
 
 // Checks collision after coordinates for a potential move have been calculated
-export const checkCollision = (board, potentialBlock) => {
+export const canMove = (board, potentialBlock) => {
     let ableToMove = true;
     potentialBlock.forEach((block) => {
-        if (board[block.x][block.y] !== 0)
+        if (board[block.x][block.y] !== 0) {
             ableToMove = false;
+        }
     });
-    // let ableToMove = false;
-    // if (board[potentialBlock[0].x][potentialBlock[0].y] === 0)
-    //     if (board[potentialBlock[1].x][potentialBlock[1].y] === 0)
-    //         if (board[potentialBlock[2].x][potentialBlock[2].y] === 0)
-    //             if (board[potentialBlock[3].x][potentialBlock[3].y] === 0)
-    //                 ableToMove = true;                    
     return ableToMove;
 }
 
 export const getPotentialBlock = (direction, piece) => {
     let potentialPiece = getPieceBlocks(piece);
-    const { x, y }  = piece;
     switch(direction) {
         case LEFT:
             for (let i = 0; i < potentialPiece.length; i++)
@@ -49,24 +43,18 @@ export const getPotentialBlock = (direction, piece) => {
              potentialPiece[i].x += 1;
          return potentialPiece;
         case DOWN:
-            return [{x, y: y - 1}, {x, y: y - 2}, {x: x + 1, y: y - 1}, {x: x + 1, y: y - 2}]
+            for (let i = 0; i < potentialPiece.length; i++)
+                potentialPiece[i].y -= 1;
+            return potentialPiece;
         default:
             return;
     }
 }
-
-
-
-// export const checkForLanding = (board, piece) => {
-//     const currentCoords = getPieceCoords(piece);
-//     const potentialCoords = 
-// }
 
 export const writeBoard = (board, newPiece, shape) => {
     let newBoard = board.slice();
     newPiece.forEach(block => {
         newBoard[block.x][block.y] = getBoardCode(shape);
     })
-    console.log(newBoard);
     return newBoard;
 }

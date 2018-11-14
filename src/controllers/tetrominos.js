@@ -1,47 +1,17 @@
-export const tetrominos = {
-    T: {
-
-    },
-    I: {
-
-    },
-    O: {
-
-    },
-    L: {
-
-    },
-    J: {
-
-    },
-    S: {
-
-    },
-    Z: {
-        x: 4,
-        y: 22,
-        shape: 'Z',
-        orientation: 0
-    }
-}
-
-const piece = {
-    x: 0,
-    y: 0,
-    shape: 'Z', // T, I, O, L, J, S, Z
-    orientation: 0 // 0, 1, 2, 3, initial state is 0, order is clockwise
-}
-
 export const getBoardCode = (shape) => {
     const codeDict = {
+        'O': 1,
         'T': 2,
-        'O': 1
+        'I': 3,
+        'J': 4,
+        'L': 5,
+        'S': 6,
+        'Z': 7
     };
     return codeDict[shape];
 }
 
 export const getPieceBlocks = (piece) => {
-    // console.log(piece)
     const { shape, orientation, x, y } = piece;
     switch (shape) {
         case 'T':
@@ -58,18 +28,73 @@ export const getPieceBlocks = (piece) => {
                     return;
             }
         case 'I':
-            return;
+            switch (orientation) {
+                case 0:
+                    return [{x, y: y + 1}, {x, y}, {x, y: y - 1}, {x, y: y - 2}];
+                case 1:
+                    return [{x: x - 1, y}, {x, y}, {x: x + 1, y}, {x: x + 2, y}];
+                case 2:
+                    return [{x: x + 1, y: y + 1}, {x: x + 1, y}, {x: x + 1, y: y - 1}, {x: x + 1, y: y - 2}];
+                case 3:
+                    return [{x: x - 1, y: y - 1}, {x, y: y - 1}, {x: x + 1, y: y - 1}, {x: x + 2, y: y - 1}];
+                default:
+                    return;
+            }
         case 'O':
             return [{x, y}, {x: x + 1, y}, {x, y: y - 1}, {x: x + 1, y: y - 1}];
         case 'L':
-            return;
+            switch (orientation) {
+                case 0:
+                    return [{x, y: y + 1}, {x, y}, {x, y: y - 1}, {x: x + 1, y: y - 1}];
+                case 1:
+                    return [{x: x - 1, y: y - 1}, {x: x - 1, y}, {x, y}, {x: x + 1, y}];
+                case 2:
+                    return [{x: x - 1, y: y + 1}, {x, y: y + 1}, {x, y}, {x, y: y - 1}];
+                case 3:
+                    return [{x: x - 1, y}, {x, y}, {x: x + 1, y}, {x: x + 1, y: y + 1}];
+                default:
+                    return;
+            }
         case 'J':
-           return;
+            switch (orientation) {
+                case 0:
+                    return [{x, y: y + 1}, {x, y}, {x, y: y - 1}, {x: x - 1, y: y - 1}];
+                case 1:
+                    return [{x: x - 1, y: y + 1}, {x: x - 1, y}, {x, y}, {x: x + 1, y}];
+                case 2:
+                    return [{x: x + 1, y: y + 1}, {x, y: y + 1}, {x, y}, {x, y: y - 1}];
+                case 3:
+                    return [{x: x - 1, y}, {x, y}, {x: x + 1, y}, {x: x + 1, y: y - 1}];
+                default:
+                    return;
+            }
         case 'S':
-            return;
+            switch (orientation) {
+                case 0:
+                    return [{x, y: y + 1}, {x, y}, {x: x + 1, y: y + 1}, {x: x - 1, y}];
+                case 1:
+                    return [{x, y: y + 1}, {x, y}, {x: x + 1, y}, {x: x + 1, y: y - 1}];
+                case 2:
+                    return [{x: x - 1, y: y - 1}, {x, y: y - 1}, {x, y}, {x: x + 1, y}];
+                case 3:
+                    return [{x: x - 1, y: y + 1}, {x, y}, {x: x - 1, y}, {x, y: y - 1}];
+                default:
+                    return;
+            }
         case 'Z':
-            return;
-        defaut:
+            switch (orientation) {
+                case 0:
+                    return [{x, y: y + 1}, {x, y}, {x: x - 1, y: y + 1}, {x: x + 1, y}];
+                case 1:
+                    return [{x, y: y - 1}, {x, y}, {x: x + 1, y}, {x: x + 1, y: y + 1}];
+                case 2:
+                    return [{x: x - 1, y}, {x, y: y - 1}, {x, y}, {x: x + 1, y: y -1}];
+                case 3:
+                    return [{x: x - 1, y: y - 1}, {x, y}, {x: x - 1, y}, {x, y: y + 1}];
+                default:
+                    return;
+            }
+        default:
             return;
     }
 }

@@ -38,3 +38,43 @@
     position: absolute;
     z-index: 10;
 }
+.blue-block {
+    background-color: blue;
+    border-radius: 3px;
+    height: 29px;
+    width: 29px;
+    position: absolute;
+    z-index: 10;
+}
+.silver-block {
+    background-color: silver;
+    border-radius: 3px;
+    height: 29px;
+    width: 29px;
+    position: absolute;
+    z-index: 10;
+}
+.yellow-block {
+    background-color: yellow;
+    border-radius: 3px;
+    height: 29px;
+    width: 29px;
+    position: absolute;
+    z-index: 10;
+}
+.purple-block {
+    background-color: purple;
+    border-radius: 3px;
+    height: 29px;
+    width: 29px;
+    position: absolute;
+    z-index: 10;
+}
+.light-blue-block {
+    background-color: lightblue;
+    border-radius: 3px;
+    height: 29px;
+    width: 29px;
+    position: absolute;
+    z-index: 10;
+}
