@@ -33,6 +33,7 @@ const piece = {
 }
 
 export const getPieceBlocks = (piece) => {
+    console.log(piece)
     const { shape, orientation, x, y } = piece;
     switch (shape) {
         case 'T':

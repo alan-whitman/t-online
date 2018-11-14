@@ -24,7 +24,7 @@ class Board extends Component {
             anchorY: 22,
             interval: -1,
             paused: false,
-            speed: 200
+            speed: 2000
         }
         this.renderPiece = this.renderPiece.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
@@ -138,11 +138,12 @@ class Board extends Component {
     }
     renderPiece() {
         // const { piece } = this.state;
-        const piece = {shape: 'T', orientation: 0, x: 5, y: 22}
+        const piece = {shape: 'T', orientation: 0, x: this.state.anchorX, y: this.state.anchorY};
         let renderCoords = getPieceBlocks(piece);
+        console.log(renderCoords);
         let pieceRender = [];
         for (let i = 0; i < renderCoords.length; i++) {
-            pieceRender.push(<div key="0" className={convertNumToClass(1)} style={{left: renderCoords[i].x * BLOCK_SIZE, top: renderCoords[i].y * BLOCK_SIZE}} />)
+            pieceRender.push(<div key={i} className={convertNumToClass(1)} style={{left: renderCoords[i].x * BLOCK_SIZE, bottom:  (renderCoords[i].y - 1) * BLOCK_SIZE}} />)
         }
         
 
