@@ -11,6 +11,20 @@ export const getBoardCode = (shape) => {
     return codeDict[shape];
 }
 
+
+//shuffle alghorithm from https://bost.ocks.org/mike/shuffle/
+export const shuffleShapes = () => {
+    let shapes = ['T', 'O', 'I', 'J', 'L', 'S', 'Z'];
+    let m = 7, t, i;
+    while (m) {
+        i = Math.floor(Math.random() * m--);
+        t = shapes[m];
+        shapes[m] = shapes[i];
+        shapes[i] = t;
+  }
+  return shapes;
+}
+
 export const getPieceBlocks = (piece) => {
     const { shape, orientation, x, y } = piece;
     switch (shape) {

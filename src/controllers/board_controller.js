@@ -21,14 +21,15 @@ export const clearTopLine = (board) => {
 }
 
 // Checks collision after coordinates for a potential move have been calculated
+
 export const canMove = (board, potentialBlock) => {
-    let ableToMove = true;
-    potentialBlock.forEach((block) => {
-        if (board[block.x][block.y] !== 0) {
-            ableToMove = false;
+    for (let i = 0; i < potentialBlock.length; i++) {
+        if (board[potentialBlock[i].x][potentialBlock[i].y] !== 0) {
+            return false;
         }
-    });
-    return ableToMove;
+        
+    }
+    return true;
 }
 
 export const getPotentialBlock = (direction, piece) => {

@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import './Board.css';
 import { convertNumToClass } from '../controllers/shape_styles';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard } from '../controllers/board_controller';
-import { getPieceBlocks, getBoardCode } from '../controllers/tetrominos';
+import { getPieceBlocks, getBoardCode, shuffleShapes } from '../controllers/tetrominos';
 const BLOCK_SIZE = 30;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
+
 
 class Board extends Component {
     constructor() {
@@ -21,17 +22,18 @@ class Board extends Component {
                     board[x][y] = 0;
             }
         }
+        let shapeOrder = shuffleShapes();
         this.state = {
             board,
             interval: -1,
             paused: false,
             speed: 1000,
-            shapes: ['T', 'O', 'I', 'J', 'L', 'S', 'Z'],
-            currentShape: 0,
+            shapeOrder,
+            currentShape: 1,
             piece: {
                 x: 5,
                 y: 20,
-                shape: 'T',
+                shape: shapeOrder[0],
                 orientation: 0
             }
         }
@@ -49,8 +51,15 @@ class Board extends Component {
     }
     newPiece() {
         let { currentShape } = this.state;
-        currentShape = currentShape === this.state.shapes.length - 1 ? 0 : currentShape + 1;
-        const nextShape = this.state.shapes[currentShape];
+        let nextShape;
+        if (currentShape === 6) {
+            currentShape = 0;
+            nextShape = this.state.shapeOrder[6]
+            this.setState({shapeOrder: shuffleShapes()});
+        }  else {
+            nextShape = this.state.shapeOrder[currentShape];
+            currentShape++
+        }
         this.setState({piece: {...this.state.piece, x: 5, y: 20, orientation: 0, shape: nextShape}, currentShape});
     }
     hardDrop() {
@@ -61,6 +70,17 @@ class Board extends Component {
             if (!canMove(board, potentialBlock)) {
                 this.setState({piece: {...this.state.piece, y: droppingPiece.y}}, () => this.landPiece());
                 return;
+            }
+            droppingPiece.y -= 1
+        }
+    }
+    getShadow() {
+        const { board } = this.state;
+        let droppingPiece = {...this.state.piece};
+        while (true) {
+            let potentialBlock = getPotentialBlock(DOWN, droppingPiece);
+            if (!canMove(board, potentialBlock)) {
+                return droppingPiece
             }
             droppingPiece.y -= 1
         }
@@ -126,15 +146,15 @@ class Board extends Component {
         const { piece } = this.state;
         let potentialBlock;
         let potentialPiece;
-        if (this.state.paused) {
-            if(key === ' ') {
-                return this.pause();
-            }
-            else {
-                return;
+        // if (this.state.paused) {
+        //     if(key === ' ') {
+        //         return this.pause();
+        //     }
+        //     else {
+        //         return;
             
-            }
-        }
+        //     }
+        // }
         switch (key) {
             case 'ArrowLeft':
                 potentialBlock = getPotentialBlock(LEFT, piece);
@@ -162,7 +182,12 @@ class Board extends Component {
                 potentialBlock = getPieceBlocks(potentialPiece);
                 if (canMove(board, potentialBlock)) {
                     this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation}});
+                    break;
                 }
+                potentialBlock.x -= 1;
+                if (canMove(board, potentialBlock)) {
+                    this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x - 1}});                    
+                }                
                 break;
             case 'z':
                 potentialPiece = {...piece};
@@ -185,6 +210,12 @@ class Board extends Component {
         for (let i = 0; i < renderCoords.length; i++) {
             pieceRender.push(<div key={i} className={convertNumToClass(getBoardCode(this.state.piece.shape))} style={{left: renderCoords[i].x * BLOCK_SIZE, bottom:  (renderCoords[i].y - 1) * BLOCK_SIZE}} />)
         }
+        let shadowPiece = this.getShadow();
+        renderCoords = getPieceBlocks(shadowPiece);
+        for (let i = 0; i < renderCoords.length; i++) {
+            pieceRender.push(<div key={'shadow ' + i} className="shadow-block" style={{left: renderCoords[i].x * BLOCK_SIZE, bottom:  (renderCoords[i].y - 1) * BLOCK_SIZE}} />)
+        }
+
         return pieceRender;
     }
     renderBoard() {
