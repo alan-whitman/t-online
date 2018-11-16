@@ -53,6 +53,9 @@ export const getPotentialBlock = (direction, piece) => {
     }
 }
 
+
+
+
 export const writeBoard = (board, newPiece, shape) => {
     console.log(board);
     let newBoard = board.slice();
