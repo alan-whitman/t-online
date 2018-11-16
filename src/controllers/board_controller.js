@@ -1,4 +1,4 @@
-import { getPieceBlocks } from "./tetrominos";
+import { getPieceBlocks, getBoardCode } from "./tetrominos";
 
 // Sets the top line of the board to be clear after clearing one or more lines, as the top line will always be clear after any number of clears
 const LEFT = 'LEFT';
@@ -7,16 +7,16 @@ const DOWN = 'DOWN';
 
 export const clearTopLine = (board) => {
     let newBoard = [...board];
-    newBoard[1][20] = 'E';
-    newBoard[2][20] = 'E';
-    newBoard[3][20] = 'E';
-    newBoard[4][20] = 'E';
-    newBoard[5][20] = 'E';
-    newBoard[6][20] = 'E';
-    newBoard[7][20] = 'E';
-    newBoard[8][20] = 'E';
-    newBoard[9][20] = 'E';
-    newBoard[10][20] = 'E';
+    newBoard[1][20] = 0;
+    newBoard[2][20] = 0;
+    newBoard[3][20] = 0;
+    newBoard[4][20] = 0;
+    newBoard[5][20] = 0;
+    newBoard[6][20] = 0;
+    newBoard[7][20] = 0;
+    newBoard[8][20] = 0;
+    newBoard[9][20] = 0;
+    newBoard[10][20] = 0;
     return newBoard;
 }
 
@@ -26,7 +26,7 @@ export const canMove = (board, potentialBlock) => {
     for (let i = 0; i < potentialBlock.length; i++) {
         if (potentialBlock[i].x < 0)
             return false;
-        if (board[potentialBlock[i].x][potentialBlock[i].y] !== 'E') {
+        if (board[potentialBlock[i].x][potentialBlock[i].y] !== 0) {
             return false;
         }
     }
@@ -57,23 +57,11 @@ export const getPotentialBlock = (direction, piece) => {
 
 
 export const writeBoard = (board, newPiece, shape) => {
-    console.log(board);
     let newBoard = board.slice();
-    console.log(newBoard);
-    console.log(newBoard[newPiece[0].x][newPiece[0].y]);
-    newBoard[newPiece[0].x][newPiece[0].y] = 'hi';
-    console.log(newBoard[newPiece[0].x][newPiece[0].y]);
-    // newboard[newPiece[1].x][newPiece[0].y] = 'hi';
-    // newboard[newPiece[2].x][newPiece[0].y] = 'hi';
-    // newboard[newPiece[3].x][newPiece[0].y] = 'hi';
-    console.log(newBoard);
-   
-    // for (let i = 0; i < 4; i++) {
-    //     console.log( newPiece[i].x, newPiece[i].y)
-    //     newBoard[newPiece[i].x][newPiece[i].y] = 'im going insane';
-    // }
-    // console.log(newBoard);
-    // return newBoard;
+    newPiece.forEach(block => {
+        newBoard[block.x][block.y] = getBoardCode(shape);
+    })
+    return newBoard;
 }
 
 export const createBoard = () => {
@@ -82,9 +70,9 @@ export const createBoard = () => {
         board[x] = [];
         for (let y = 0; y < 23; y++) {
             if (y === 0 || x < 1 || x > 10)
-                board[x][y] = 'B';
+                board[x][y] = 9;
             else 
-                board[x][y] = 'E';
+                board[x][y] = 0;
         }
     }
     return board;

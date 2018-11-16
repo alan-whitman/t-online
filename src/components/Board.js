@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './Board.css';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard } from '../controllers/board_controller';
-import { getPieceBlocks, shuffleShapes } from '../controllers/tetrominos';
+import { getPieceBlocks, getBoardCode, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
 const BLOCK_SIZE = 30;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
@@ -11,7 +11,6 @@ const DOWN = 'DOWN';
 class Board extends Component {
     constructor() {
         super();
-
         let shapeOrder = shuffleShapes();
         this.state = {
             board: createBoard(),
@@ -114,7 +113,9 @@ class Board extends Component {
     landPiece() {
         let { board } = this.state;
         let currentBlocks = getPieceBlocks(this.state.piece);
-        board = writeBoard(board, currentBlocks, this.state.piece.shape);
+        let boardCopy = board.slice();
+        board = writeBoard(boardCopy, currentBlocks, this.state.piece.shape);
+        console.log(board);
         this.setState({board});
         this.checkForClears();
         this.newPiece();
@@ -235,7 +236,8 @@ class Board extends Component {
         for (let x = 0; x < 12; x++) {
             boardGrid[x] = [];
             for (let y = 0; y < 21; y++) {
-                boardGrid[x][y] = <div key={`y: ${y}, x: ${x}`} style={{top: (20 - y) * BLOCK_SIZE + 1, left: (x) * BLOCK_SIZE}} className={'block ' + board[x][y]} />;
+                let pieceClass = 'block ' + convertBoardCodeToShape(board[x][y]);
+                boardGrid[x][y] = <div key={`y: ${y}, x: ${x}`} style={{top: (20 - y) * BLOCK_SIZE + 1, left: (x) * BLOCK_SIZE}} className={pieceClass} />;
             }
         }
         return boardGrid;

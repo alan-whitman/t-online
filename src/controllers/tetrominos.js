@@ -11,6 +11,20 @@ export const getBoardCode = (shape) => {
     return codeDict[shape];
 }
 
+export const convertBoardCodeToShape = (num) => {
+    const styleMap = {
+        0: 'E',
+        1: 'O',
+        2: 'T',
+        3: 'I',
+        4: 'J',
+        5: 'L',
+        6: 'S',
+        7: 'Z',
+        9: 'B'
+    };
+    return styleMap[num];
+}
 
 //shuffle alghorithm from https://bost.ocks.org/mike/shuffle/
 export const shuffleShapes = () => {
