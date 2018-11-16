@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import './Board.css';
-import { convertNumToClass } from '../controllers/shape_styles';
-import { clearTopLine, getPotentialBlock, canMove, writeBoard } from '../controllers/board_controller';
-import { getPieceBlocks, getBoardCode, shuffleShapes } from '../controllers/tetrominos';
+import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard } from '../controllers/board_controller';
+import { getPieceBlocks, shuffleShapes } from '../controllers/tetrominos';
 const BLOCK_SIZE = 30;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
@@ -12,19 +11,10 @@ const DOWN = 'DOWN';
 class Board extends Component {
     constructor() {
         super();
-        let board = [];
-        for (let x = 0; x < 12; x++) {
-            board[x] = [];
-            for (let y = 0; y < 23; y++) {
-                if (y === 0 || x === 0 || x === 11)
-                    board[x][y] = 9;
-                else 
-                    board[x][y] = 0;
-            }
-        }
+
         let shapeOrder = shuffleShapes();
         this.state = {
-            board,
+            board: createBoard(),
             interval: -1,
             paused: false,
             speed: 1000,
@@ -190,7 +180,7 @@ class Board extends Component {
                     this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x - 1}});
                     break;
                 }                
-                potentialPiece.x += 1;
+                potentialPiece.x += 2;
                 potentialBlock = getPieceBlocks(potentialPiece);
                 if (canMove(board, potentialBlock)) {
                     this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x + 1}});
@@ -211,7 +201,7 @@ class Board extends Component {
                     this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x + 1}});
                     break;
                 }                
-                potentialPiece.x -= 1;
+                potentialPiece.x -= 2;
                 potentialBlock = getPieceBlocks(potentialPiece);
                 if (canMove(board, potentialBlock)) {
                     this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x - 1}});
@@ -229,12 +219,12 @@ class Board extends Component {
         let renderCoords = getPieceBlocks(this.state.piece);
         let pieceRender = [];
         for (let i = 0; i < renderCoords.length; i++) {
-            pieceRender.push(<div key={i} className={convertNumToClass(getBoardCode(this.state.piece.shape))} style={{left: renderCoords[i].x * BLOCK_SIZE, bottom:  (renderCoords[i].y - 1) * BLOCK_SIZE}} />)
+            pieceRender.push(<div key={i} className={'block ' + this.state.piece.shape} style={{left: renderCoords[i].x * BLOCK_SIZE, bottom:  (renderCoords[i].y - 1) * BLOCK_SIZE}} />)
         }
         let shadowPiece = this.getShadow();
         renderCoords = getPieceBlocks(shadowPiece);
         for (let i = 0; i < renderCoords.length; i++) {
-            pieceRender.push(<div key={'shadow ' + i} className="shadow-block" style={{left: renderCoords[i].x * BLOCK_SIZE, bottom:  (renderCoords[i].y - 1) * BLOCK_SIZE}} />)
+            pieceRender.push(<div key={'shadow ' + i} className="block shadow" style={{left: renderCoords[i].x * BLOCK_SIZE, bottom:  (renderCoords[i].y - 1) * BLOCK_SIZE}} />)
         }
 
         return pieceRender;
@@ -245,8 +235,7 @@ class Board extends Component {
         for (let x = 0; x < 12; x++) {
             boardGrid[x] = [];
             for (let y = 0; y < 21; y++) {
-                let pieceClass = convertNumToClass(board[x][y]);
-                boardGrid[x][y] = <div key={`y: ${y}, x: ${x}`} style={{top: (20 - y) * BLOCK_SIZE + 1, left: (x) * BLOCK_SIZE}} className={pieceClass} />;
+                boardGrid[x][y] = <div key={`y: ${y}, x: ${x}`} style={{top: (20 - y) * BLOCK_SIZE + 1, left: (x) * BLOCK_SIZE}} className={'block ' + board[x][y]} />;
             }
         }
         return boardGrid;
