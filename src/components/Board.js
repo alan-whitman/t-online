@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './Board.css';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard } from '../controllers/board_controller';
-import { getPieceBlocks, getBoardCode, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
+import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
 const BLOCK_SIZE = 30;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
@@ -16,6 +16,7 @@ class Board extends Component {
             board: createBoard(),
             interval: -1,
             paused: false,
+            lost: false,
             speed: 1000,
             shapeOrder,
             currentShape: 1,
@@ -29,6 +30,7 @@ class Board extends Component {
         this.renderPiece = this.renderPiece.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
         this.handleInput = this.handleInput.bind(this);
+        this.newGame = this.newGame.bind(this);
         this.pause = this.pause.bind(this);
         this.tick = this.tick.bind(this);
         this.boardRef = React.createRef();
@@ -37,6 +39,14 @@ class Board extends Component {
         let interval = setInterval(this.tick, this.state.speed);
         this.setState({interval});
         this.boardRef.current.focus();
+    }
+    checkForLoss() {
+        const { board, piece } = this.state;
+        const potentialBlock = getPieceBlocks(piece);
+        if (!canMove(board, potentialBlock)) {
+            clearInterval(this.state.interval);
+            this.setState({lost: true});
+        }
     }
     newPiece() {
         let { currentShape } = this.state;
@@ -49,7 +59,7 @@ class Board extends Component {
             nextShape = this.state.shapeOrder[currentShape];
             currentShape++
         }
-        this.setState({piece: {...this.state.piece, x: 5, y: 20, orientation: 0, shape: nextShape}, currentShape});
+        this.setState({piece: {...this.state.piece, x: 5, y: 20, orientation: 0, shape: nextShape}, currentShape}, this.checkForLoss);
     }
     hardDrop() {
         const { board } = this.state;
@@ -80,12 +90,20 @@ class Board extends Component {
             this.setState({paused: true})
         }
         else {
+            if (this.state.lost)
+                return;
             this.tick();
             let interval = setInterval(this.tick, this.state.speed);
             this.setState({interval, paused: false})
             this.boardRef.current.focus();
         }
-     
+    }
+    newGame() {
+        clearInterval(this.state.interval);
+        let interval = setInterval(this.tick, this.state.speed);
+        this.boardRef.current.focus();
+        this.setState({interval, board: createBoard(), shapeOrder: shuffleShapes(), lost: false}, () => this.newPiece());
+        this.boardRef.current.focus();
     }
     checkForClears() {
         let { board } = this.state;
@@ -115,7 +133,6 @@ class Board extends Component {
         let currentBlocks = getPieceBlocks(this.state.piece);
         let boardCopy = board.slice();
         board = writeBoard(boardCopy, currentBlocks, this.state.piece.shape);
-        console.log(board);
         this.setState({board});
         this.checkForClears();
         this.newPiece();
@@ -137,6 +154,8 @@ class Board extends Component {
         const { piece } = this.state;
         let potentialBlock;
         let potentialPiece;
+        if (this.state.lost)
+            return;
         // if (this.state.paused) {
         //     if(key === ' ') {
         //         return this.pause();
@@ -245,10 +264,11 @@ class Board extends Component {
     render() {
         return (
             <div className="Board">
-                <button onClick={this.pause}>Pause</button><br /><br />
+                <button onClick={this.pause}>Pause</button>&nbsp;&nbsp;&nbsp;<button onClick={this.newGame}>New Game</button>&nbsp;&nbsp;&nbsp;{this.state.lost ? <span>You Lost! Click "New Game" to play again</span> : null}<br /><br /><br /><br />
                 <div className="board" tabIndex="0" ref={this.boardRef} onKeyDown={e => this.handleInput(e.key)}>
                     {this.renderBoard()}
                     {this.renderPiece()}
+                    
                 </div>
             </div>
         )
