@@ -184,9 +184,17 @@ class Board extends Component {
                     this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation}});
                     break;
                 }
-                potentialBlock.x -= 1;
+                potentialPiece.x -= 1;
+                potentialBlock = getPieceBlocks(potentialPiece);
                 if (canMove(board, potentialBlock)) {
-                    this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x - 1}});                    
+                    this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x - 1}});
+                    break;
+                }                
+                potentialPiece.x += 1;
+                potentialBlock = getPieceBlocks(potentialPiece);
+                if (canMove(board, potentialBlock)) {
+                    this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x + 1}});
+                    break;
                 }                
                 break;
             case 'z':
@@ -195,7 +203,20 @@ class Board extends Component {
                 potentialBlock = getPieceBlocks(potentialPiece);
                 if (canMove(board, potentialBlock)) {
                     this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation}});
+                    break
                 }
+                potentialPiece.x += 1;
+                potentialBlock = getPieceBlocks(potentialPiece);
+                if (canMove(board, potentialBlock)) {
+                    this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x + 1}});
+                    break;
+                }                
+                potentialPiece.x -= 1;
+                potentialBlock = getPieceBlocks(potentialPiece);
+                if (canMove(board, potentialBlock)) {
+                    this.setState({piece: {...this.state.piece, orientation: potentialPiece.orientation, x: x - 1}});
+                    break;
+                }                
                 break;
             case ' ':
                 this.pause();
