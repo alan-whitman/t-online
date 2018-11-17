@@ -1,37 +1,40 @@
 .board {
     position: relative;
     outline: 0px;
-    border-left: 1px solid lightgrey;
     border-top: 1px solid lightgrey;
-    width: 361px;
-    height: 601px;
+}
+
+.holder {
+    border: 1px solid lightgrey;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+    padding-top: 3px
 }
 
 .block {
-    border-radius: 3px;
-    height: 29px;
-    width: 29px;
+    border-radius: 0px;
     position: absolute;
     z-index: 10;
 }
 
 .E {
-    width: 30px;
-    height: 30px;
+    border-radius: 0px;
     border-right: 1px solid lightgrey;
     border-bottom: 1px solid lightgrey;
+    z-index: 8;
     position: absolute;
 
 }
 .B {
     background-color: black;
+    border-radius: 0px;
 }
 .shadow {
     background-color: rgb(230, 230, 230);
     z-index: 9;
-
 }
-
 .O {
     background-color: red;
 }
@@ -45,7 +48,7 @@
     background-color: darkblue;
 }
 .L {
-    background-color: yellow;
+    background-color: darkred
 }
 .S {
     background-color: purple;
