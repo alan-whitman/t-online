@@ -59,7 +59,7 @@ class Board extends Component {
             this.setState({lost: true, paused: false});
         }
     }
-    newPiece() {
+    newPiece(swapped = false) {
         let { currentShape } = this.state;
         let nextShape, nextPiece;
         if (currentShape === 6) {
@@ -73,13 +73,13 @@ class Board extends Component {
             currentShape++;
             nextPiece = this.state.shapeOrder[currentShape];
         }
-        this.setState({piece: {...this.state.piece, x: INITIAL_X, y: INITIAL_Y, orientation: 0, shape: nextShape}, currentShape, nextPiece, swapped: false}, this.checkForLoss);
+        this.setState({piece: {...this.state.piece, x: INITIAL_X, y: INITIAL_Y, orientation: 0, shape: nextShape}, currentShape, nextPiece, swapped}, this.checkForLoss);
     }
     newGame() {
         clearInterval(this.state.interval);
         let interval = setInterval(this.tick, this.state.speed);
         this.boardRef.current.focus();
-        this.setState({interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, () => this.newPiece());
+        this.setState({interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
         this.boardRef.current.focus();
     }
     checkForClears() {
@@ -108,8 +108,7 @@ class Board extends Component {
     landPiece() {
         let { board } = this.state;
         let currentBlocks = getPieceBlocks(this.state.piece);
-        let boardCopy = board.slice();
-        board = writeBoard(boardCopy, currentBlocks, this.state.piece.shape);
+        board = writeBoard([...board], currentBlocks, this.state.piece.shape);
         this.setState({board});
         this.checkForClears();
         this.newPiece();
@@ -137,7 +136,7 @@ class Board extends Component {
         while (true) {
             let potentialBlock = getPotentialBlock(DOWN, droppingPiece);
             if (!canMove(board, potentialBlock)) {
-                this.setState({piece: {...this.state.piece, y: droppingPiece.y}}, () => this.landPiece());
+                this.setState({piece: {...this.state.piece, y: droppingPiece.y}}, this.landPiece);
                 return;
             }
             droppingPiece.y -= 1
@@ -161,7 +160,7 @@ class Board extends Component {
     }
    holdPiece() {
     if (!this.state.heldPiece)
-        return this.setState({heldPiece: this.state.piece.shape}, this.newPiece);
+        return this.setState({heldPiece: this.state.piece.shape, swapped: true}, () => this.newPiece(true));
     if (!this.state.swapped) {
         let heldPiece = this.state.piece.shape;
             return this.setState({piece: {...this.state.piece, shape: this.state.heldPiece, x: INITIAL_X, y: INITIAL_Y}, heldPiece, swapped: true});
