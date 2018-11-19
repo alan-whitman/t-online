@@ -6,6 +6,8 @@ const BLOCK_SCALE = 25;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
+const INITIAL_X = 5;
+const INITIAL_Y = 21;
 
 
 class Board extends Component {
@@ -19,14 +21,14 @@ class Board extends Component {
             lost: false,
             swapped: false,
             heldPiece: '',
-            speed: 1000,
+            speed: 500,
             shapeOrder,
             currentShape: 1,
             nextPiece: shapeOrder[1],
             score: 0,
             piece: {
-                x: 5,
-                y: 20,
+                x: INITIAL_X,
+                y: INITIAL_Y,
                 shape: shapeOrder[0],
                 orientation: 0
             }
@@ -44,6 +46,11 @@ class Board extends Component {
         this.setState({interval});
         this.boardRef.current.focus();
     }
+
+    /*
+        Game logic
+    */
+    
     checkForLoss() {
         const { board, piece } = this.state;
         const potentialBlock = getPieceBlocks(piece);
@@ -66,46 +73,7 @@ class Board extends Component {
             currentShape++;
             nextPiece = this.state.shapeOrder[currentShape];
         }
-        this.setState({piece: {...this.state.piece, x: 5, y: 20, orientation: 0, shape: nextShape}, currentShape, nextPiece, swapped: false}, this.checkForLoss);
-    }
-    hardDrop() {
-        const { board } = this.state;
-        let droppingPiece = {...this.state.piece};
-        while (true) {
-            let potentialBlock = getPotentialBlock(DOWN, droppingPiece);
-            if (!canMove(board, potentialBlock)) {
-                this.setState({piece: {...this.state.piece, y: droppingPiece.y}}, () => this.landPiece());
-                return;
-            }
-            droppingPiece.y -= 1
-        }
-    }
-    getShadow() {
-        const { board } = this.state;
-        let droppingPiece = {...this.state.piece};
-        while (true) {
-            let potentialBlock = getPotentialBlock(DOWN, droppingPiece);
-            if (!canMove(board, potentialBlock)) {
-                return droppingPiece
-            }
-            droppingPiece.y -= 1
-        }
-    }
-    pause() {
-        if (this.state.lost)
-            return;
-        if (!this.state.paused) {
-            clearInterval(this.state.interval)
-            this.setState({paused: true})
-        }
-        else {
-            if (this.state.lost)
-                return;
-            this.tick();
-            let interval = setInterval(this.tick, this.state.speed);
-            this.setState({interval, paused: false})
-            this.boardRef.current.focus();
-        }
+        this.setState({piece: {...this.state.piece, x: INITIAL_X, y: INITIAL_Y, orientation: 0, shape: nextShape}, currentShape, nextPiece, swapped: false}, this.checkForLoss);
     }
     newGame() {
         clearInterval(this.state.interval);
@@ -132,7 +100,6 @@ class Board extends Component {
             for (let y = line; y < 20; y++) {
                 for (let x = 1; x <= 10; x++)
                     board[x][y] = board[x][y + 1];
-
             }
             board = clearTopLine(board);
         }
@@ -157,14 +124,51 @@ class Board extends Component {
             this.setState({piece: {...this.state.piece, y: y - 1}});
         }
     }
-    holdPiece() {
-        if (!this.state.heldPiece)
-            return this.setState({heldPiece: this.state.piece.shape}, this.newPiece);
-        if (!this.state.swapped) {
-            let heldPiece = this.state.piece.shape;
-            return this.setState({piece: {...this.state.piece, shape: this.state.heldPiece}, heldPiece, swapped: true});
+
+    /*
+        Movement and Controls
+    */
+
+
+
+    hardDrop() {
+        const { board } = this.state;
+        let droppingPiece = {...this.state.piece};
+        while (true) {
+            let potentialBlock = getPotentialBlock(DOWN, droppingPiece);
+            if (!canMove(board, potentialBlock)) {
+                this.setState({piece: {...this.state.piece, y: droppingPiece.y}}, () => this.landPiece());
+                return;
+            }
+            droppingPiece.y -= 1
         }
     }
+    pause() {
+        if (this.state.lost)
+            return;
+        if (!this.state.paused) {
+            clearInterval(this.state.interval)
+            this.setState({paused: true})
+        }
+        else {
+            if (this.state.lost)
+                return;
+            this.tick();
+            let interval = setInterval(this.tick, this.state.speed);
+            this.setState({interval, paused: false})
+            this.boardRef.current.focus();
+        }
+    }
+   holdPiece() {
+    if (!this.state.heldPiece)
+        return this.setState({heldPiece: this.state.piece.shape}, this.newPiece);
+    if (!this.state.swapped) {
+        let heldPiece = this.state.piece.shape;
+            return this.setState({piece: {...this.state.piece, shape: this.state.heldPiece, x: INITIAL_X, y: INITIAL_Y}, heldPiece, swapped: true});
+        }
+    }
+
+    // cry deeply
     handleInput(key) {
         const { board } = this.state;
         const { x, y }  = this.state.piece;
@@ -254,6 +258,24 @@ class Board extends Component {
                 return;
         }
     }
+
+    /*
+        Rendering 
+    */
+
+    // Rewrite as functional
+    getShadow() {
+    const { board } = this.state;
+    let droppingPiece = {...this.state.piece};
+    while (true) {
+        let potentialBlock = getPotentialBlock(DOWN, droppingPiece);
+        if (!canMove(board, potentialBlock)) {
+                return droppingPiece;
+            }
+        droppingPiece.y -= 1
+        }
+    }
+
     renderPieces() {
         let renderCoords = getPieceBlocks(this.state.piece);
         let pieceRender = [];

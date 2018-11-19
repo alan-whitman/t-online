@@ -1,10 +1,10 @@
 import { getPieceBlocks, getBoardCode } from "./tetrominos";
 
-// Sets the top line of the board to be clear after clearing one or more lines, as the top line will always be clear after any number of clears
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
 
+// Set the top line of the board to be clear after clearing one or more lines, as the top line will always be clear after any number of clears
 export const clearTopLine = (board) => {
     let newBoard = [...board];
     newBoard[1][20] = 0;
@@ -20,8 +20,7 @@ export const clearTopLine = (board) => {
     return newBoard;
 }
 
-// Checks collision after coordinates for a potential move have been calculated
-
+// Check collision after coordinates for a potential move have been calculated
 export const canMove = (board, potentialBlock) => {
     for (let i = 0; i < potentialBlock.length; i++) {
         if (potentialBlock[i].x < 0)
