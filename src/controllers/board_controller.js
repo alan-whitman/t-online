@@ -4,7 +4,7 @@ const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
 
-// Set the top line of the board to be clear after clearing one or more lines, as the top line will always be clear after any number of clears
+// Set the top line of the board to be clear after clearing one or more lines, since it will always be clear after any number of clears
 export const clearTopLine = (board) => {
     let newBoard = [...board];
     newBoard[1][20] = 0;

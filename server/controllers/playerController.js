@@ -1,5 +1,3 @@
-let nextPlayerId = 0;
-players = [];
 
 module.exports = {
     assignPlayerId() {

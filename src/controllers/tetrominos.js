@@ -39,6 +39,8 @@ export const shuffleShapes = () => {
   return shapes;
 }
 
+// returns collision block for the current shape
+
 export const getPieceBlocks = (piece) => {
     const { shape, orientation, x, y } = piece;
     switch (shape) {
