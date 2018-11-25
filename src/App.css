@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css?family=Inconsolata');
 body {
-  padding-left: 50px;
-  padding-top: 20px;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Inconsolata', monospace;
+}
+.App {
+  padding: 70px 30px 0px 30px;
 }

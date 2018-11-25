@@ -1,0 +1,32 @@
+.Header {
+    height: 50px;
+    width: 100%;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    background-color: darkblue;
+    color: white;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-weight: bold;
+}
+.Header>div {
+    margin-right: 30px;
+}
+.login-button {
+    border: 1px solid black;
+    height: 25px;
+    font-size: 16px;
+}
+.Header>div>input {
+    margin-right: 20px;
+    height: 25px;
+    font-size: 16px;
+    border: 1px solid black;
+}
+.Header .title {
+    margin-right: auto;
+    margin-left: 30px;
+    font-size: 32px;
+}

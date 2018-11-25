@@ -16,7 +16,8 @@ module.exports = {
                 return res.status(400).send('error: username already exists');
             const pw_hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
             const user = await db.auth_register({username, email, pw_hash});
-            req.session.user = user;
+            delete user[0].pw_hash;
+            req.session.user = user[0];
             res.status(200).send(req.session.user);
         } catch (err) {
             console.error(err);
