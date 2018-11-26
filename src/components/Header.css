@@ -14,10 +14,14 @@
 .Header>div {
     margin-right: 30px;
 }
+.Header span {
+    margin-right: 20px;
+}
 .login-button {
     border: 1px solid black;
     height: 25px;
     font-size: 16px;
+    margin-right: 20px;
 }
 .Header>div>input {
     margin-right: 20px;
@@ -29,4 +33,7 @@
     margin-right: auto;
     margin-left: 30px;
     font-size: 32px;
+}
+.Header .title a{
+    color: white
 }
