@@ -9,25 +9,26 @@ class Scores extends Component {
         }
     }
     getScores() {
-        axios.get('/sp/get_scores').then(res => {
+        let getString = '/sp/get_scores';
+        getString += this.props.match.params.username ? '/' + this.props.match.params.username : ''
+        axios.get(getString).then(res => {
             const scores = res.data.map((score, i) => {
-                return <div key={i}>Score: {score.score}</div>
+                return <div key={i}>Score: {score.score}, played on {score.date}</div>
             });
             return this.setState({scores});
         });
     }
     componentDidMount() {
-        if (this.props.isLoggedIn)
-            this.getScores();
+        this.getScores();
     }
     componentDidUpdate(prevProps) {
-        if (this.props.id !== prevProps.id && this.props.isLoggedIn)
+        if (this.props.match.params.username !== prevProps.match.params.username)
             this.getScores();
     }
     render() {
         return (
             <div>
-                <h3>Past Scores</h3>
+                <h3>Past Games</h3>
                 {this.props.isLoggedIn ? this.state.scores : null}
             </div>
         )

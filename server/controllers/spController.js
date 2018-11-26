@@ -3,20 +3,21 @@ module.exports = {
         const db = req.app.get('db');
         const { score } = req.body;
         const { user_id } = req.session.user;
-        db.sp_add_score({user_id, score}).then(dbRes => {
+        const date = new Date().toDateString();
+        db.sp_add_score({user_id, score, date}).then(dbRes => {
             res.send('Score added successfully');
         });
     },
     getScores(req, res) {
         const db = req.app.get('db');
-        let user_id;
-        if (req.params.id)
-            user_id = req.params.id;
+        let username;
+        if (req.params.username)
+            username = req.params.username;
         else if (req.session.user)
-            user_id = req.session.user.user_id;
+            username = req.session.user.username;
         else 
-            return res.status(409).send('No valid user ID');
-        db.sp_get_scores(user_id).then(dbRes => {
+            return res.status(409).send('No valid username');
+        db.sp_get_scores(username).then(dbRes => {
             res.send(dbRes);
         });
     },

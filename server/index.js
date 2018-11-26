@@ -34,11 +34,11 @@ app.get('/auth/current_user', ac.currentUser);
 app.get('/auth/logout', ac.logout);
 
 /*
-    SP game history endpoints
+    SP game endpoints
 */
 
 app.post('/sp/add_score', sp.addScore);
-app.get('/sp/get_scores/:id', sp.getScores);
+app.get('/sp/get_scores/:username', sp.getScores);
 app.get('/sp/get_scores', sp.getScores);
 app.get('/sp/leaderboard', sp.getLeaderboard);
 

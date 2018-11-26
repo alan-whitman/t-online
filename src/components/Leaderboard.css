@@ -1,0 +1,15 @@
+.Leaderboard {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    border-left: 1px solid black;
+    border-top: 1px solid black;
+}
+.Leaderboard>div {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+.Leaderboard>div>div {
+    padding: 8px 8px;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}

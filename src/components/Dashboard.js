@@ -12,9 +12,12 @@ class Dashboard extends Component {
             <div className="Dashboard">
                 <DashboardNav />
                 <div className="content-area">
-                    <Route path="/leaderboard" exact component={Leaderboard} />
-                    <Route path="/sp" exact render={(props) => <Board {...props} isLoggedIn={this.props.isLoggedIn} />} />
-                    <Route path="/" exact render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} id={this.props.user.user_id} />} />
+                    <Switch>
+                        <Route path="/leaderboard" exact component={Leaderboard} />
+                        <Route path="/sp" exact render={(props) => <Board {...props} isLoggedIn={this.props.isLoggedIn} />} />
+                        <Route path="/scores" exact render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} id={this.props.user.user_id} />} />
+                        <Route path="/scores/:username" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} id={this.props.user.user_id} />} />
+                    </Switch>
                 </div>
             </div>
         )
