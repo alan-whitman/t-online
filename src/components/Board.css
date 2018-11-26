@@ -58,23 +58,23 @@
     z-index: 9;
 }
 .O {
-    background-color: red;
+    background-color: dark;
 }
 .T {
-    background-color: green;
+    background-color: purple;
 }
 .I {
-    background-color: blue;
+    background-color: darkcyan;
 }
 .J {
     background-color: darkblue;
 }
 .L {
-    background-color: darkred
+    background-color: darkorange;
 }
 .S {
-    background-color: purple;
+    background-color: darkgreen;
 }
 .Z {
-    background-color: darkgreen;
+    background-color: darkred;
 }

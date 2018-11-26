@@ -4,6 +4,7 @@ const io = require('socket.io')();
 const massive = require('massive');
 const bodyParser = require('body-parser');
 const ac = require('./controllers/authController');
+const sp = require('./controllers/spController');
 require('dotenv').config();
 
 const { CONNECTION_STRING: cs, SOCKET_PORT: socketPort, EXPRESS_PORT: expressPort, SESSION_SECRET: ss } = process.env;
@@ -23,10 +24,25 @@ app.use(session({
     }
 }));
 
+/*
+    Auth endpoints
+*/
+
 app.post('/auth/register', ac.register);
 app.post('/auth/login', ac.login);
 app.get('/auth/current_user', ac.currentUser);
 app.get('/auth/logout', ac.logout);
+
+/*
+    SP game history endpoints
+*/
+
+app.post('/sp/add_score', sp.addScore);
+app.get('/sp/get_scores/:id', sp.getScores);
+app.get('/sp/get_scores', sp.getScores);
+app.get('/sp/leaderboard', sp.getLeaderboard);
+
+
 
 
 app.listen(expressPort, () => console.log(expressPort));

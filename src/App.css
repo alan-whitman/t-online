@@ -7,8 +7,9 @@ button {
 
 }
 .App {
-  padding: 70px 30px 0px 30px;
+  padding: 50px 0px 0px 0px;
 }
 a {
   text-decoration: none;
+  color: black;
 }

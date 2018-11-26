@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import './Board.css';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard } from '../controllers/board_controller';
 import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
@@ -8,6 +9,7 @@ const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
 const INITIAL_X = 5;
 const INITIAL_Y = 21;
+
 
 
 class Board extends Component {
@@ -21,15 +23,15 @@ class Board extends Component {
             lost: false,
             swapped: false,
             heldPiece: '',
-            initialSpeed: 500,
-            currentSpeed: 500,
+            initialSpeed: 800,
+            currentSpeed: 800,
             shapeOrder,
             currentShape: 1,
             nextPiece: shapeOrder[1],
             score: 0,
             level: 1,
             lines: 0,
-            comboCount: 0,
+            chainCount: 0,
             piece: {
                 x: INITIAL_X,
                 y: INITIAL_Y,
@@ -50,16 +52,30 @@ class Board extends Component {
         this.setState({interval});
         this.boardRef.current.focus();
     }
+    componentWillUnmount() {
+        clearInterval(this.state.interval);
+    }
+
+    /*
+        Backend communication
+    */
+
+    addToScores() {
+        if (this.props.isLoggedIn) {
+            const { score } = this.state;
+            axios.post('/sp/add_score', {score}).then(res => {
+                console.log('score added: ' + this.state.score);
+            })
+        }
+    }
+
 
     /*
         Game logic
     */
 
     increaseSpeed(level) {
-        let currentSpeed = this.state.initialSpeed;
-        for (let i = 0; i < level - 1; i++)
-            currentSpeed *= .96;
-        currentSpeed = Math.floor(currentSpeed);
+        let currentSpeed = Math.floor(((0.8 - ((level - 1) * 0.007)) ** (level - 1)) * 1000);
         clearInterval(this.state.interval);
         let interval = setInterval(this.tick, currentSpeed);
         this.setState({currentSpeed, interval})
@@ -71,6 +87,7 @@ class Board extends Component {
         if (!canMove(board, potentialBlock)) {
             clearInterval(this.state.interval);
             this.setState({lost: true, paused: false});
+            this.addToScores();
         }
     }
     newPiece(swapped = false) {
@@ -93,7 +110,7 @@ class Board extends Component {
         clearInterval(this.state.interval);
         let interval = setInterval(this.tick, this.state.initialSpeed);
         this.boardRef.current.focus();
-        this.setState({currentSpeed: this.state.initialSpeed, interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
+        this.setState({currentSpeed: this.state.initialSpeed, score: 0, interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
         this.boardRef.current.focus();
     }
     checkForClears() {
@@ -361,6 +378,7 @@ class Board extends Component {
                     <span className="scoreboard">Score: {this.state.score}</span>
                     <span className="scoreboard">Lines: {this.state.lines}</span> 
                     <span className="scoreboard">Level: {this.state.level}</span>
+                    <span className="scoreboard">Chain: {this.state.chainCount}</span>
                     <span className="scoreboard">Speed: {this.state.currentSpeed}</span>
                 </div>
                 
