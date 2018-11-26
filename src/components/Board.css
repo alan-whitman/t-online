@@ -19,7 +19,28 @@
     position: absolute;
     z-index: 10;
 }
-
+.scoreboard {
+    width: 170px;
+    height: 30px;
+    margin-right: 20px;
+    background-color: rgb(230, 230, 230);
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border: 1px solid lightgrey;
+    border-radius: 3px;
+}
+.scoreboard-holder {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 60px;
+}
+.ui-button {
+    border: 1px solid black;
+    height: 25px;
+    font-size: 16px;
+    margin-right: 20px;
+}
 .E {
     border-radius: 0px;
     border-right: 1px solid lightgrey;

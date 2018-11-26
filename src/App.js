@@ -3,7 +3,6 @@ import './reset.css';
 import './App.css';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard'
-import { Switch, Route } from 'react-router-dom';
 import axios from 'axios';
 
 class App extends Component {
@@ -38,7 +37,7 @@ class App extends Component {
   }
   register(username, email, password) {
     if (username.trim() === '' || password.trim() === '' || email.trim() === '')
-      return;
+      return this.setState({authError: 'Registration requires a username, password, and email address'});
     axios.post('/auth/register', {username, email, password}).then(res => {
       this.setState({user: res.data, isLoggedIn: true, authError: ''});
     }).catch(err => this.setState({authError: err.response.data}));

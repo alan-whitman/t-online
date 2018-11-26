@@ -32,7 +32,8 @@
 .Header .title {
     margin-right: auto;
     margin-left: 30px;
-    font-size: 32px;
+    font-size: 40px;
+    font-weight: 900;
 }
 .Header .title a{
     color: white

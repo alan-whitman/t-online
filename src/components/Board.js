@@ -21,11 +21,15 @@ class Board extends Component {
             lost: false,
             swapped: false,
             heldPiece: '',
-            speed: 500,
+            initialSpeed: 500,
+            currentSpeed: 500,
             shapeOrder,
             currentShape: 1,
             nextPiece: shapeOrder[1],
             score: 0,
+            level: 1,
+            lines: 0,
+            comboCount: 0,
             piece: {
                 x: INITIAL_X,
                 y: INITIAL_Y,
@@ -42,7 +46,7 @@ class Board extends Component {
         this.boardRef = React.createRef();
     }
     componentDidMount() {
-        let interval = setInterval(this.tick, this.state.speed);
+        let interval = setInterval(this.tick, this.state.initialSpeed);
         this.setState({interval});
         this.boardRef.current.focus();
     }
@@ -50,7 +54,17 @@ class Board extends Component {
     /*
         Game logic
     */
-    
+
+    increaseSpeed(level) {
+        let currentSpeed = this.state.initialSpeed;
+        for (let i = 0; i < level - 1; i++)
+            currentSpeed *= .96;
+        currentSpeed = Math.floor(currentSpeed);
+        clearInterval(this.state.interval);
+        let interval = setInterval(this.tick, currentSpeed);
+        this.setState({currentSpeed, interval})
+
+    }
     checkForLoss() {
         const { board, piece } = this.state;
         const potentialBlock = getPieceBlocks(piece);
@@ -77,13 +91,13 @@ class Board extends Component {
     }
     newGame() {
         clearInterval(this.state.interval);
-        let interval = setInterval(this.tick, this.state.speed);
+        let interval = setInterval(this.tick, this.state.initialSpeed);
         this.boardRef.current.focus();
-        this.setState({interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
+        this.setState({currentSpeed: this.state.initialSpeed, interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
         this.boardRef.current.focus();
     }
     checkForClears() {
-        let { board, score } = this.state;
+        let { board, score, lines } = this.state;
         let clearLines = [];
         for (let y = 1; y <= 20; y++) {
             let clears = true;
@@ -95,6 +109,10 @@ class Board extends Component {
                 clearLines.push(y);
         }
         score += (clearLines.length ** 2) * 1000;
+        lines += clearLines.length;
+        const level = Math.floor(lines / 10) + 1;
+        if (level > this.state.level)
+            this.increaseSpeed(level);
         while (clearLines[0]) {
             let line = clearLines.pop();
             for (let y = line; y < 20; y++) {
@@ -103,7 +121,7 @@ class Board extends Component {
             }
             board = clearTopLine(board);
         }
-        this.setState({board, score})
+        this.setState({board, score, lines, level})
     }
     landPiece() {
         let { board } = this.state;
@@ -150,10 +168,8 @@ class Board extends Component {
             this.setState({paused: true})
         }
         else {
-            if (this.state.lost)
-                return;
-            this.tick();
-            let interval = setInterval(this.tick, this.state.speed);
+             this.tick();
+            let interval = setInterval(this.tick, this.state.currentSpeed);
             this.setState({interval, paused: false})
             this.boardRef.current.focus();
         }
@@ -315,9 +331,12 @@ class Board extends Component {
         let boardGrid = [];
         for (let x = 0; x < 12; x++) {
             boardGrid[x] = [];
-            for (let y = 0; y < 21; y++) {
+            for (let y = 0; y < 23; y++) {
+                if (y > 20)
+                    if (x !== 0 && x !== 11)
+                        break;
                 const shape = convertBoardCodeToShape(board[x][y])
-                const blockWidth = shape === 'E' || shape === 'B' ? BLOCK_SCALE : BLOCK_SCALE - 1
+                const blockWidth = shape === 'E' || shape === 'B' ? BLOCK_SCALE : BLOCK_SCALE - 1;
                 const pieceClass = 'block ' + shape;
                 if (x === 0) {
                     if (y > 0)
@@ -326,10 +345,7 @@ class Board extends Component {
                         boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: (x) * BLOCK_SCALE - 1, width: blockWidth + 1, height: blockWidth}} className={pieceClass} />;    
                 } else {
                     boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: (x) * BLOCK_SCALE, width: blockWidth, height: blockWidth}} className={pieceClass} />;
-                }
-
-                // boardGrid.push(<div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE + 1, left: (x) * BLOCK_SCALE, width: blockWidth, height: blockWidth}} className={'block E'}  />);
-                
+                }                
             }
         }
         return boardGrid;
@@ -337,7 +353,17 @@ class Board extends Component {
     render() {
         return (
             <div className="Board">
-                <button onClick={this.pause}>Pause</button>&nbsp;&nbsp;&nbsp;<button onClick={this.newGame}>New Game</button>&nbsp;&nbsp;&nbsp;{this.state.lost ? <span style={{fontWeight: 900}}>You Lost! Click "New Game" to play again.</span> : null}<br /><br /><span>Move with arrow keys. Z rotates left, X rotates right, and C holds the current piece</span><br /><br /><span>Score: {this.state.score}</span><br /><br />
+                <button onClick={this.pause} className="ui-button">Pause</button>
+                <button onClick={this.newGame} className="ui-button">New Game</button>
+                {this.state.lost ? <span style={{fontWeight: 900}}>You Lost! Click "New Game" to play again.</span> : null}<br /><br />
+                <span>Move piece with arrow keys. Z rotates left, X rotates right, C holds the current piece, up arrow drops the current piece. </span><br /><br />
+                <div className="scoreboard-holder">
+                    <span className="scoreboard">Score: {this.state.score}</span>
+                    <span className="scoreboard">Lines: {this.state.lines}</span> 
+                    <span className="scoreboard">Level: {this.state.level}</span>
+                    <span className="scoreboard">Speed: {this.state.currentSpeed}</span>
+                </div>
+                
                 <div className="board" tabIndex="0" style={{width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 20 + 1}} ref={this.boardRef} onKeyDown={e => this.handleInput(e.key)}>
                     <div className="holder" style={{width: BLOCK_SCALE * 4 + 10, height: BLOCK_SCALE * 6, left: BLOCK_SCALE * 12 + 10, top: -1}}>
                     Next
