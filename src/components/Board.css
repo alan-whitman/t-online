@@ -78,3 +78,15 @@
 .Z {
     background-color: darkred;
 }
+
+
+/*
+    Message window        
+*/
+
+.message-holder   {
+    border: 1px solid lightgrey;
+    position: absolute;
+    overflow: hidden;
+
+}

@@ -28,7 +28,7 @@ class Scores extends Component {
         this.getScores();
     }
     componentDidUpdate(prevProps) {
-        if (this.props.match.params.username !== prevProps.match.params.username)
+        if (this.props.match.params.username !== prevProps.match.params.username || this.props.isLoggedIn !== prevProps.isLoggedIn) // || this.props.user.username !== prevProps.user.username
             this.getScores();
     }
     render() {
@@ -37,6 +37,8 @@ class Scores extends Component {
             userMessage = 'Please login or a visit another user\'s history page to see a game history';
         else if (this.props.match.params.username)
             userMessage = this.props.match.params.username;
+        else
+            userMessage = this.props.user.username;
         return (
             <div className="Scores">
                 <h2>Past Games</h2>

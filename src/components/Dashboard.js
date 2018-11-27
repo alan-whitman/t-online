@@ -16,7 +16,7 @@ class Dashboard extends Component {
                         <Route path="/leaderboard" exact component={Leaderboard} />
                         <Route path="/sp" exact render={(props) => <Board {...props} isLoggedIn={this.props.isLoggedIn} />} />
                         <Route path="/scores/:username" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} />} />
-                        <Route path="/scores" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} />} />
+                        <Route path="/scores" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} user={this.props.user} />} />
                     </Switch>
                 </div>
             </div>

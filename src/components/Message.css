@@ -1,0 +1,17 @@
+.Message {
+    animation-name: message;
+    animation-duration: 6s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+
+}
+
+@keyframes message {
+    from {
+        color: rgba(0, 0, 0, 1);
+    }
+    to {
+        color: rgba(0, 0, 0, 0.1);
+    }
+}
+

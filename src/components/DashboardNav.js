@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 
 
 const DashboardNav = (props) => {
-    const user = props.username ? '/' + props.username : '';
+    // const user = props.username ? '/' + props.username : '';
     return (
         <div className="DashboardNav">
             <div>
-                <Link to={"/scores" + user}>Profile</Link>
+                <Link to={"/scores"}>Profile</Link>
             </div>
             <div>
                 <Link to="/sp">Play Singleplayer</Link>

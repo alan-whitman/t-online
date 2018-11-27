@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './Board.css';
+import Message from './Message';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard } from '../controllers/board_controller';
 import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
-const BLOCK_SCALE = 25;
+
+
+const BLOCK_SCALE = 23;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
 const INITIAL_X = 5;
 const INITIAL_Y = 21;
+
 
 class Board extends Component {
     constructor() {
@@ -30,6 +34,8 @@ class Board extends Component {
             level: 1,
             lines: 0,
             chainCount: 0,
+            countingDown: true,
+            messages: [],
             piece: {
                 x: INITIAL_X,
                 y: INITIAL_Y,
@@ -39,16 +45,22 @@ class Board extends Component {
         }
         this.renderPieces = this.renderPieces.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
+        this.renderMessages = this.renderMessages.bind(this);
+        this.clearMessage = this.clearMessage.bind(this);
+        this.createMessage = this.createMessage.bind(this);
         this.handleInput = this.handleInput.bind(this);
+        this.startGame = this.startGame.bind(this);
         this.newGame = this.newGame.bind(this);
         this.pause = this.pause.bind(this);
         this.tick = this.tick.bind(this);
         this.boardRef = React.createRef();
     }
     componentDidMount() {
-        let interval = setInterval(this.tick, this.state.initialSpeed);
-        this.setState({interval});
-        this.boardRef.current.focus();
+        this.createMessage('3');
+        setTimeout(() => this.createMessage('2'), 1000);
+        setTimeout(() => this.createMessage('1'), 2000);
+        setTimeout(() => this.createMessage('GO!'), 3000);
+        setTimeout(this.startGame, 3000);
     }
     componentWillUnmount() {
         clearInterval(this.state.interval);
@@ -61,16 +73,19 @@ class Board extends Component {
     addToScores() {
         if (this.props.isLoggedIn) {
             const { score } = this.state;
-            axios.post('/sp/add_score', {score}).then(res => {
-            })
+            axios.post('/sp/add_score', {score}).then(res => {})
         }
     }
-
 
     /*
         Game logic
     */
 
+    startGame() {
+        let interval = setInterval(this.tick, this.state.initialSpeed);
+        this.setState({interval});
+        this.boardRef.current.focus();        
+    }
     increaseSpeed(level) {
         let currentSpeed = Math.floor(((0.8 - ((level - 1) * 0.007)) ** (level - 1)) * 1000);
         clearInterval(this.state.interval);
@@ -84,6 +99,7 @@ class Board extends Component {
         if (!canMove(board, potentialBlock)) {
             clearInterval(this.state.interval);
             this.setState({lost: true, paused: false});
+            this.createMessage('Game over! CLick New Game to play again!')
             this.addToScores();
         }
     }
@@ -124,9 +140,13 @@ class Board extends Component {
         }
         score += (clearLines.length ** 2) * 1000;
         lines += clearLines.length;
+        if (clearLines.length > 0)
+            this.createMessage(`Cleared ${clearLines.length} lines`);
         const level = Math.floor(lines / 10) + 1;
-        if (level > this.state.level)
+        if (level > this.state.level) {
+            this.createMessage('Level up!')
             this.increaseSpeed(level);
+        }
         while (clearLines[0]) {
             let line = clearLines.pop();
             for (let y = line; y < 20; y++) {
@@ -289,6 +309,30 @@ class Board extends Component {
     }
 
     /*
+        Message handling
+    */
+
+    clearMessage() {
+        let { messages } = this.state;
+        messages.shift();
+        this.setState({messages});
+    }
+    createMessage(message) {
+        let { messages } = this.state;
+        messages.push(message);
+        this.setState({messages});
+        setTimeout(this.clearMessage, 7000);
+    }
+    renderMessages() {
+        if (this.state.messages[0]) {
+            const messages = this.state.messages.map((message, i) => {
+                return <Message key={i} message={message} />
+            });
+            return messages;
+        }
+    }
+
+    /*
         Rendering 
     */
 
@@ -370,7 +414,7 @@ class Board extends Component {
                 <button onClick={this.pause} className="ui-button">Pause</button>
                 <button onClick={this.newGame} className="ui-button">New Game</button>
                 {this.state.lost ? <span style={{fontWeight: 900}}>Game Over! Click "New Game" to play again.</span> : null}<br /><br />
-                <span>Move piece with arrow keys. Z rotates left, X rotates right, C holds the current piece, up arrow drops the current piece. </span><br /><br />
+                {/* <span>Move piece with arrow keys. Z rotates left, X rotates right, C holds the current piece, up arrow drops the current piece. </span><br /><br /> */}
                 <div className="scoreboard-holder">
                     <span className="scoreboard">Score: {this.state.score}</span>
                     <span className="scoreboard">Lines: {this.state.lines}</span> 
@@ -381,14 +425,16 @@ class Board extends Component {
                 
                 <div className="board" tabIndex="0" style={{width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 20 + 1}} ref={this.boardRef} onKeyDown={e => this.handleInput(e.key)}>
                     <div className="holder" style={{width: BLOCK_SCALE * 4 + 10, height: BLOCK_SCALE * 6, left: BLOCK_SCALE * 12 + 10, top: -1}}>
-                    Next
+                        Next
                     </div>
                     <div className="holder" style={{width: BLOCK_SCALE * 4 + 10, height: BLOCK_SCALE * 6, left: BLOCK_SCALE * 12 + 10, top: BLOCK_SCALE * 6 + 9}}>
-                    Hold
+                        Hold
+                    </div>
+                    <div className="message-holder" style={{left: BLOCK_SCALE * 15 + 50, top: -1, width: BLOCK_SCALE * 10, height: BLOCK_SCALE * 6}}>
+                        {this.renderMessages()}
                     </div>
                     {this.renderBoard()}
                     {this.renderPieces()}
-                    
                 </div>
             </div>
         )

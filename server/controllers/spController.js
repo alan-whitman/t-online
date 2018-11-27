@@ -16,15 +16,15 @@ module.exports = {
         else if (req.session.user)
             username = req.session.user.username;
         else 
-            return res.status(409).send('No valid username');
+            return res.send([]);
         db.sp_get_scores(username).then(dbRes => {
             res.send(dbRes);
-        });
+        }).catch(err => res.status(500).send(err));
     },
     getLeaderboard(req, res) {
         const db = req.app.get('db');
         db.sp_get_leaderboard().then(dbRes => {
             res.send(dbRes);
-        })
+        }).catch(err => res.status(500).send(err));
     }
 }
