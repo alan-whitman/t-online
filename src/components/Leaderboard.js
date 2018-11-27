@@ -15,7 +15,10 @@ class Leaderboard extends Component {
             let leaderboard = res.data.map((score, i) => {
                 return (
                     <div key={i}>
-                        <div><Link to={"/scores/" + score.username}>{score.username}</Link></div><div>{score.score}</div><div>{score.date}</div>
+                        <div>{i + 1}</div>
+                        <div><Link to={"/scores/" + score.username}>{score.username}</Link></div>
+                        <div>{score.score}</div>
+                        <div>{score.date}</div>
                     </div>
                 )
             });
@@ -25,13 +28,17 @@ class Leaderboard extends Component {
     render() {
         return (
             <div className="Leaderboard">
-                <div>
-                    <div>Username</div>
-                    <div>Score</div>
-                    <div>Played on</div>
+                <h2>Singleplayer Leaderboard</h2>
+                <hr />
+                <div className="leaderboard">
+                    <div>
+                        <div className="leaderboard-header">Rank</div>
+                        <div className="leaderboard-header">Username</div>
+                        <div className="leaderboard-header">Score</div>
+                        <div className="leaderboard-header">Played on</div>
+                    </div>
+                    {this.state.leaderboard}
                 </div>
-            
-                {this.state.leaderboard}
             </div>
         )
     }

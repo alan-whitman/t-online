@@ -10,8 +10,6 @@ const DOWN = 'DOWN';
 const INITIAL_X = 5;
 const INITIAL_Y = 21;
 
-
-
 class Board extends Component {
     constructor() {
         super();
@@ -64,7 +62,6 @@ class Board extends Component {
         if (this.props.isLoggedIn) {
             const { score } = this.state;
             axios.post('/sp/add_score', {score}).then(res => {
-                console.log('score added: ' + this.state.score);
             })
         }
     }
@@ -209,14 +206,14 @@ class Board extends Component {
         let potentialPiece;
         if (this.state.lost)
             return;
-        // if (this.state.paused) {
-        //     if(key === ' ') {
-        //         return this.pause();
-        //     }
-        //     else {
-        //         return;
-        //     }
-        // }
+        if (this.state.paused) {
+            if(key === ' ') {
+                return this.pause();
+            }
+            else {
+                return;
+            }
+        }
         switch (key) {
             case 'ArrowLeft':
                 potentialBlock = getPotentialBlock(LEFT, piece);
@@ -372,7 +369,7 @@ class Board extends Component {
             <div className="Board">
                 <button onClick={this.pause} className="ui-button">Pause</button>
                 <button onClick={this.newGame} className="ui-button">New Game</button>
-                {this.state.lost ? <span style={{fontWeight: 900}}>You Lost! Click "New Game" to play again.</span> : null}<br /><br />
+                {this.state.lost ? <span style={{fontWeight: 900}}>Game Over! Click "New Game" to play again.</span> : null}<br /><br />
                 <span>Move piece with arrow keys. Z rotates left, X rotates right, C holds the current piece, up arrow drops the current piece. </span><br /><br />
                 <div className="scoreboard-holder">
                     <span className="scoreboard">Score: {this.state.score}</span>

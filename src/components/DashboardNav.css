@@ -1,16 +1,21 @@
 .DashboardNav {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     height: 34px;
     background-color: darkgray;
-    padding: 4px 0px 4px 20px;
+    padding: 4px 30px 4px 30px;
 }
 .DashboardNav div {
     background-color: lightgray;
-    padding: 5px;
+    text-align: center;
+    padding: 5px 15px;
+    width: 100%;
     margin-right: 20px;
     border-radius: 3px;
+    white-space: nowrap
 }
-.DashboardNav a {
+.DashboardNav a:hover {
+    color: darkblue;
 
 }

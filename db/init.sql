@@ -8,5 +8,6 @@ CREATE TABLE t_users (
 CREATE TABLE t_sp_games (
     sp_game_id      SERIAL PRIMARY KEY,
     user_id         INTEGER REFERENCES t_users(user_id),
-    score           INTEGER
+    score           INTEGER,
+    date            TEXT
 )

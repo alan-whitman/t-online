@@ -1,0 +1,25 @@
+h2 {
+    font-size: 24px;
+}
+h3 {
+    font-size: 21px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+.scores {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+
+}
+.scores>div {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-bottom: 1px solid black;
+}
+.scores>div>div {
+    padding: 8px;
+}
+.scores-header {
+    font-weight: 900;
+    font-size: 18px;
+}
