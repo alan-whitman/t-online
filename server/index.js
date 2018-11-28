@@ -50,7 +50,6 @@ app.get('/sp/leaderboard', sp.getLeaderboard);
 
 app.listen(expressPort, () => console.log(expressPort));
 
-
 /*
     Socket stuff
 */
@@ -65,8 +64,10 @@ io.on('connection', client => {
         myRoom = 't' + roomCount;
         client.join(myRoom);
         io.to(myRoom).clients((err, clients) => {
-            if (clients.length == 2)
+            if (clients.length == 2) {
                 roomCount++;
+                io.in(myRoom).emit('startGame');
+            }
         });
         client.emit('roomNum', 'You are in room ' + myRoom);    
     });

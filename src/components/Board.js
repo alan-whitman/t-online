@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import 'hacktimer';
 import './Board.css';
 import Message from './Message';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard } from '../controllers/board_controller';
 import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
 
 import io from 'socket.io-client';
-const socket = io('http://localhost:4100');
+const socket = io('http://192.168.10.189:4100');
+
 
 
 const BLOCK_SCALE = 23;
@@ -48,14 +50,6 @@ class Board extends Component {
                 orientation: 0
             }
         }
-
-        socket.on('relayBoard', opBoard => {
-            this.setState({opBoard});
-        });
-        socket.on('roomNum', roomMsg => {
-            console.log(roomMsg);
-        });
-
         this.renderPieces = this.renderPieces.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
         this.renderMessages = this.renderMessages.bind(this);
@@ -67,11 +61,20 @@ class Board extends Component {
         this.pause = this.pause.bind(this);
         this.tick = this.tick.bind(this);
         this.boardRef = React.createRef();
+
+        socket.on('relayBoard', opBoard => {
+            this.setState({opBoard});
+        });
+        socket.on('roomNum', roomMsg => {
+            console.log(roomMsg);
+        });
+        socket.on('startGame', this.startGame);
+
     }
     componentDidMount() {
         if (this.props.mode === 'mp') {
             socket.emit('playMp');
-            this.startGame();
+            // this.startGame();
         }
         else if (this.props.mode === 'sp') {
             this.createMessage('3');
