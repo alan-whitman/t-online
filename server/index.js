@@ -1,10 +1,11 @@
 const app = require('express')();
-const session = require('express-session');
 const io = require('socket.io')();
+const session = require('express-session');
 const massive = require('massive');
 const bodyParser = require('body-parser');
 const ac = require('./controllers/authController');
 const sp = require('./controllers/spController');
+const mc = require('./controllers/socket/mpController');
 require('dotenv').config();
 
 const { CONNECTION_STRING: cs, SOCKET_PORT: socketPort, EXPRESS_PORT: expressPort, SESSION_SECRET: ss } = process.env;
@@ -43,36 +44,37 @@ app.get('/sp/get_scores', sp.getScores);
 app.get('/sp/leaderboard', sp.getLeaderboard);
 
 
-
+/*
+    Express Listen
+*/
 
 app.listen(expressPort, () => console.log(expressPort));
 
 
-// io.on('connection', (client) => {
-//     console.log('a user connected');
-//     client.on('requestNewPlayer', (name) => {
-//         let newPlayerData = {
-//             posx: 0,
-//             posy: 0,
-//             name,
-//             id: nextPlayerId++
-//         }
-//         players.push(newPlayerData);
-//         client.emit('sendNewPlayer', {...newPlayerData, map});
-//     });
-//     client.on('updatePlayerPos', (updatingPlayer) => {
-//         let updatingPlayerId = players.findIndex(player => player.id === updatingPlayer.id);
-//         players[updatingPlayerId] = updatingPlayer;
-//         client.emit('updatePlayers', players);
-//     });
-//     setInterval(() => {
-//         client.emit('updatePlayers', players)
-//         // console.log('hi');
-//     }, 100)
-//     // client.on('getPlayerId', () => {
-//     //     console.log('getting player id...')
-//     //     client.emit('assignPlayerId', pc.assignPlayerId());
-//     // })
-// });
+/*
+    Socket stuff
+*/
 
-// io.listen(socketPort);
+let roomCount = 0;
+
+io.on('connection', client => {
+    console.log('client connected');
+    let myRoom;
+    let roomSize;
+    client.on('playMp', () => {
+        myRoom = 't' + roomCount;
+        client.join(myRoom);
+        io.to(myRoom).clients((err, clients) => {
+            if (clients.length == 2)
+                roomCount++;
+        });
+        client.emit('roomNum', 'You are in room ' + myRoom);    
+    });
+
+    client.on('sendBoard', (board) => {
+        client.to(myRoom).emit('relayBoard', board);
+    });
+
+});
+
+io.listen(socketPort);

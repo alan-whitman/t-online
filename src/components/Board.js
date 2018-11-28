@@ -5,6 +5,9 @@ import Message from './Message';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard } from '../controllers/board_controller';
 import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
 
+import io from 'socket.io-client';
+const socket = io('http://localhost:4100');
+
 
 const BLOCK_SCALE = 23;
 const LEFT = 'LEFT';
@@ -15,18 +18,20 @@ const INITIAL_Y = 21;
 
 
 class Board extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         let shapeOrder = shuffleShapes();
+        const initialSpeed = this.props.mode === 'sp' ? 800 : 500;
         this.state = {
             board: createBoard(),
+            opBoard: createBoard(),
             interval: -1,
             paused: false,
             lost: true,
             swapped: false,
             heldPiece: '',
-            initialSpeed: 800,
-            currentSpeed: 800,
+            initialSpeed,
+            currentSpeed: initialSpeed,
             shapeOrder,
             currentShape: 1,
             nextPiece: shapeOrder[1],
@@ -43,6 +48,14 @@ class Board extends Component {
                 orientation: 0
             }
         }
+
+        socket.on('relayBoard', opBoard => {
+            this.setState({opBoard});
+        });
+        socket.on('roomNum', roomMsg => {
+            console.log(roomMsg);
+        });
+
         this.renderPieces = this.renderPieces.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
         this.renderMessages = this.renderMessages.bind(this);
@@ -56,14 +69,32 @@ class Board extends Component {
         this.boardRef = React.createRef();
     }
     componentDidMount() {
-        this.createMessage('3');
-        setTimeout(() => this.createMessage('2'), 1000);
-        setTimeout(() => this.createMessage('1'), 2000);
-        setTimeout(() => this.createMessage('GO!'), 3000);
-        setTimeout(this.startGame, 3000);
+        if (this.props.mode === 'mp') {
+            socket.emit('playMp');
+            this.startGame();
+        }
+        else if (this.props.mode === 'sp') {
+            this.createMessage('3');
+            setTimeout(() => this.createMessage('2'), 1000);
+            setTimeout(() => this.createMessage('1'), 2000);
+            setTimeout(() => this.createMessage('GO!'), 3000);
+            setTimeout(this.startGame, 3000);
+        }
     }
     componentWillUnmount() {
         clearInterval(this.state.interval);
+        if (this.props.mode === 'mp')
+            socket.emit('disconnect')
+    }
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.piece !== prevState.piece && this.props.mode === 'mp') {
+            const currentBlocks = getPieceBlocks(this.state.piece);
+            let board = this.state.board.map(column => {
+                return column.slice();
+            });
+            board = writeBoard(board, currentBlocks, this.state.piece.shape);
+            socket.emit('sendBoard', board);
+        }
     }
 
     /*
@@ -86,7 +117,8 @@ class Board extends Component {
     startGame() {
         let interval = setInterval(this.tick, this.state.initialSpeed);
         this.setState({interval, lost: false});
-        this.boardRef.current.focus();        
+        if (this.boardRef.current)
+            this.boardRef.current.focus();
     }
     increaseSpeed(level) {
         let currentSpeed = Math.floor(((0.8 - ((level - 1) * 0.007)) ** (level - 1)) * 1000);
@@ -136,17 +168,17 @@ class Board extends Component {
             3: 500
         }
         if (this.state.b2btetris && lines === 4) {
-            this.createMessage('Back to back TETRIS! ' + level * 1200 + ' points!');
+            this.createMessage('Back to back TETRIS! ' + level * 1200 + ' points');
             return level * 1200;
         }
         if (lines === 4) {
-            this.createMessage('TETRIS! ' + level * 800 + ' points!');
+            this.createMessage('TETRIS! ' + level * 800 + ' points');
             this.setState({b2btetris: true});
             return level * 800;
         }
         let message = `Cleared ${lines} line`;
         message += lines > 1 ? 's!' : '!';
-        message += ' ' + level * scoreDict[lines] + ' points!';
+        message += ' ' + level * scoreDict[lines] + ' points';
         this.createMessage(message);
         this.setState({b2btetris: false});
         return level * scoreDict[lines];
@@ -221,11 +253,11 @@ class Board extends Component {
     pause() {
         if (this.state.lost)
             return;
-        if (!this.state.paused) {
+        if (!this.state.paused && this.props.mode !== 'mp') {
             clearInterval(this.state.interval)
             this.setState({paused: true})
         }
-        else {
+        else if (this.props.mode !== 'mp') {
              this.tick();
             let interval = setInterval(this.tick, this.state.currentSpeed);
             this.setState({interval, paused: false})
@@ -345,7 +377,7 @@ class Board extends Component {
         let { messages } = this.state;
         messages.push(message);
         this.setState({messages});
-        setTimeout(this.clearMessage, 7000);
+        setTimeout(this.clearMessage, 6000);
     }
     renderMessages() {
         if (this.state.messages[0]) {
@@ -431,17 +463,47 @@ class Board extends Component {
         }
         return boardGrid;
     }
+    renderOpBoard() {
+        const { opBoard: board } = this.state;
+        let boardGrid = [];
+        for (let x = 0; x < 12; x++) {
+            boardGrid[x] = [];
+            for (let y = 0; y < 23; y++) {
+                const shape = convertBoardCodeToShape(board[x][y])
+                const blockWidth = shape === 'E' || shape === 'B' ? BLOCK_SCALE : BLOCK_SCALE - 1;
+                const pieceClass = 'block ' + shape;
+                if (shape === 'E' && y > 21)
+                    break;
+                let br;
+                if (y === 21 && x > 0 && x < 11)
+                    br = 'none';
+                if (x === 0) {
+                    if (y > 0)
+                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE - 1) + BLOCK_SCALE * 20, width: blockWidth + 1, height: blockWidth, borderRight: '1px solid lightgrey'}} className={pieceClass} />;
+                    else
+                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE - 1) + BLOCK_SCALE * 20, width: blockWidth + 1, height: blockWidth}} className={pieceClass} />;    
+                } else {
+                    boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE) + BLOCK_SCALE * 20, width: blockWidth, height: blockWidth, borderRight: br}} className={pieceClass} />;
+                }                
+            }
+        }
+        return boardGrid;
+    }
+
     render() {
         return (
             <div className="Board">
-                <button onClick={this.pause} className="ui-button">Pause</button>
-                <button onClick={this.newGame} className="ui-button">New Game</button><br /><br />
-                {/* <span>Move piece with arrow keys. Z rotates left, X rotates right, C holds the current piece, up arrow drops the current piece. </span><br /><br /> */}
+                {this.props.mode === 'sp' ?
+                    <div>
+                        <button onClick={this.pause} className="ui-button">Pause</button>
+                        <button onClick={this.newGame} className="ui-button">New Game</button><br /><br />
+                    </div>
+                : null
+                }
                 <div className="scoreboard-holder">
                     <span className="scoreboard">Score: {this.state.score}</span>
                     <span className="scoreboard">Lines: {this.state.lines}</span> 
                     <span className="scoreboard">Level: {this.state.level}</span>
-                    <span className="scoreboard">Chain: {this.state.chainCount}</span>
                 </div>
                 
                 <div className="board" tabIndex="0" style={{width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 20 + 1}} ref={this.boardRef} onKeyDown={e => this.handleInput(e.key)}>
@@ -451,10 +513,14 @@ class Board extends Component {
                     <div className="holder" style={{width: BLOCK_SCALE * 4 + 10, height: BLOCK_SCALE * 6, left: BLOCK_SCALE * 12 + 10, top: BLOCK_SCALE * 6 + 9}}>
                         Hold
                     </div>
-                    <div className="message-holder" style={{left: BLOCK_SCALE * 15 + 50, top: -1, width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 6}}>
-                        {this.renderMessages()}
-                    </div>
+                    {this.props.mode === 'sp' ? 
+                        <div className="message-holder" style={{left: BLOCK_SCALE * 15 + 50, top: -1, width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 6}}>
+                            {this.renderMessages()}
+                        </div>
+                    : null
+                    }
                     {this.renderBoard()}
+                    {this.props.mode === 'mp' ? this.renderOpBoard() : null}
                     {this.renderPieces()}
                 </div>
             </div>

@@ -64,7 +64,7 @@ export const createBoard = () => {
     let board = []
     for (let x = 0; x < 12; x++) {
         board[x] = [];
-        for (let y = 0; y < 23; y++) {
+        for (let y = 0; y < 24; y++) {
             if (y === 0 || x < 1 || x > 10)
                 board[x][y] = 9;
             else 

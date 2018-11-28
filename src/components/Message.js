@@ -3,9 +3,7 @@ import './Message.css';
 
 const Message = (props) => {
     return (
-        <div className="Message">
-            <h1>{props.message}</h1>
-        </div>
+        <p className="Message">{props.message}</p>
     )
 
 }
