@@ -88,5 +88,6 @@
     border: 1px solid lightgrey;
     position: absolute;
     overflow: hidden;
+    padding: 3px;
 
 }

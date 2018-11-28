@@ -22,7 +22,7 @@ class Board extends Component {
             board: createBoard(),
             interval: -1,
             paused: false,
-            lost: false,
+            lost: true,
             swapped: false,
             heldPiece: '',
             initialSpeed: 800,
@@ -34,8 +34,8 @@ class Board extends Component {
             level: 1,
             lines: 0,
             chainCount: 0,
-            countingDown: true,
             messages: [],
+            b2btetris: false,
             piece: {
                 x: INITIAL_X,
                 y: INITIAL_Y,
@@ -71,9 +71,11 @@ class Board extends Component {
     */
 
     addToScores() {
-        if (this.props.isLoggedIn) {
+        if (this.props.isLoggedIn && this.state.score > 0) {
             const { score } = this.state;
-            axios.post('/sp/add_score', {score}).then(res => {})
+            axios.post('/sp/add_score', {score}).then(res => {
+                this.createMessage('Score recorded!');
+            })
         }
     }
 
@@ -83,7 +85,7 @@ class Board extends Component {
 
     startGame() {
         let interval = setInterval(this.tick, this.state.initialSpeed);
-        this.setState({interval});
+        this.setState({interval, lost: false});
         this.boardRef.current.focus();        
     }
     increaseSpeed(level) {
@@ -126,6 +128,29 @@ class Board extends Component {
         this.setState({currentSpeed: this.state.initialSpeed, score: 0, interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
         this.boardRef.current.focus();
     }
+    getScore(lines) {
+        const { level } = this.state;
+        const scoreDict = {
+            1: 100,
+            2: 300,
+            3: 500
+        }
+        if (this.state.b2btetris && lines === 4) {
+            this.createMessage('Back to back TETRIS! ' + level * 1200 + ' points!');
+            return level * 1200;
+        }
+        if (lines === 4) {
+            this.createMessage('TETRIS! ' + level * 800 + ' points!');
+            this.setState({b2btetris: true});
+            return level * 800;
+        }
+        let message = `Cleared ${lines} line`;
+        message += lines > 1 ? 's!' : '!';
+        message += ' ' + level * scoreDict[lines] + ' points!';
+        this.createMessage(message);
+        this.setState({b2btetris: false});
+        return level * scoreDict[lines];
+    }
     checkForClears() {
         let { board, score, lines } = this.state;
         let clearLines = [];
@@ -138,10 +163,9 @@ class Board extends Component {
             if (clears)
                 clearLines.push(y);
         }
-        score += (clearLines.length ** 2) * 1000;
         lines += clearLines.length;
         if (clearLines.length > 0)
-            this.createMessage(`Cleared ${clearLines.length} lines`);
+            score += this.getScore(clearLines.length)
         const level = Math.floor(lines / 10) + 1;
         if (level > this.state.level) {
             this.createMessage('Level up!')
@@ -338,14 +362,13 @@ class Board extends Component {
 
     // Rewrite as functional
     getShadow() {
-    const { board } = this.state;
-    let droppingPiece = {...this.state.piece};
-    while (true) {
-        let potentialBlock = getPotentialBlock(DOWN, droppingPiece);
-        if (!canMove(board, potentialBlock)) {
+        const { board } = this.state;
+        let droppingPiece = {...this.state.piece};
+        while (true) {
+            let potentialBlock = getPotentialBlock(DOWN, droppingPiece);
+            if (!canMove(board, potentialBlock))
                 return droppingPiece;
-            }
-        droppingPiece.y -= 1
+            droppingPiece.y -= 1
         }
     }
 
@@ -412,15 +435,13 @@ class Board extends Component {
         return (
             <div className="Board">
                 <button onClick={this.pause} className="ui-button">Pause</button>
-                <button onClick={this.newGame} className="ui-button">New Game</button>
-                {this.state.lost ? <span style={{fontWeight: 900}}>Game Over! Click "New Game" to play again.</span> : null}<br /><br />
+                <button onClick={this.newGame} className="ui-button">New Game</button><br /><br />
                 {/* <span>Move piece with arrow keys. Z rotates left, X rotates right, C holds the current piece, up arrow drops the current piece. </span><br /><br /> */}
                 <div className="scoreboard-holder">
                     <span className="scoreboard">Score: {this.state.score}</span>
                     <span className="scoreboard">Lines: {this.state.lines}</span> 
                     <span className="scoreboard">Level: {this.state.level}</span>
                     <span className="scoreboard">Chain: {this.state.chainCount}</span>
-                    <span className="scoreboard">Speed: {this.state.currentSpeed}</span>
                 </div>
                 
                 <div className="board" tabIndex="0" style={{width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 20 + 1}} ref={this.boardRef} onKeyDown={e => this.handleInput(e.key)}>
@@ -430,7 +451,7 @@ class Board extends Component {
                     <div className="holder" style={{width: BLOCK_SCALE * 4 + 10, height: BLOCK_SCALE * 6, left: BLOCK_SCALE * 12 + 10, top: BLOCK_SCALE * 6 + 9}}>
                         Hold
                     </div>
-                    <div className="message-holder" style={{left: BLOCK_SCALE * 15 + 50, top: -1, width: BLOCK_SCALE * 10, height: BLOCK_SCALE * 6}}>
+                    <div className="message-holder" style={{left: BLOCK_SCALE * 15 + 50, top: -1, width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 6}}>
                         {this.renderMessages()}
                     </div>
                     {this.renderBoard()}

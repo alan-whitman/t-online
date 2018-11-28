@@ -1,8 +1,9 @@
 .Message {
     animation-name: message;
-    animation-duration: 6s;
+    animation-duration: 4s;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
+    animation-delay: 3s
 
 }
 
@@ -11,7 +12,7 @@
         color: rgba(0, 0, 0, 1);
     }
     to {
-        color: rgba(0, 0, 0, 0.1);
+        color: rgba(0, 0, 0, 0.0);
     }
 }
 
