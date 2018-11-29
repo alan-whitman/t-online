@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import io from 'socket.io-client';
 import 'hacktimer';
 import './Board.css';
 import Message from './Message';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard, addGarbage } from '../controllers/board_controller';
 import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
 
-import io from 'socket.io-client';
 let socket = {
     disconnect () {
 
@@ -71,8 +71,9 @@ class Board extends Component {
         this.messageRef = React.createRef();
     }
     componentDidMount() {
+        const socketPath = window.location.host.split(':')[0];
         if (this.props.mode === 'mp' && this.props.isLoggedIn) {
-            socket = io('http://localhost:4100');
+            socket = io(socketPath + ':4100');
 
             socket.on('relayBoard', opBoard => {
                 this.setState({opBoard});
@@ -87,12 +88,16 @@ class Board extends Component {
                 this.countDown();
             });
             socket.on('userDisconnected', () => {
-                this.createMessage('The other player disconnected, so you win by default.');
-                this.winGame();
+                if (!this.state.lost) {
+                    this.createMessage('The other player disconnected, so you win by default.');
+                    this.winGame();
+                }
             });
             socket.on('youWin', () => {
-                this.createMessage('The other player lost! That means you win.');
-                this.winGame();
+                if (!this.state.lost) {
+                    this.createMessage('The other player lost! That means you won.');
+                    this.winGame();
+                }
             });
 
             socket.on('relayGarbage', (garbage) => {
@@ -139,7 +144,8 @@ class Board extends Component {
             axios.post('/sp/add_score', {score}).then(res => {
                 this.createMessage('Score recorded!');
             })
-        }
+        } else if (!this.props.isLoggedIn)
+            this.createMessage('Log in or create an account to record your score history');
     }
 
     /*
@@ -160,6 +166,8 @@ class Board extends Component {
             this.boardRef.current.focus();
     }
     winGame() {
+        if (this.state.lost)
+            return;
         axios.post('/mp/update_ratings', {winner: this.props.user.username, loser: this.state.op}).then(res => {
             let newRating;
             res.data.forEach(user => {
@@ -170,7 +178,7 @@ class Board extends Component {
             this.createMessage('Your new rating is ' + newRating);
         }).catch(err => {this.createMessage('No rating change since you played yourself.'); console.error(err);});
         clearInterval(this.state.interval);
-        this.setState({mpGameOver: true, op: ''});
+        this.setState({mpGameOver: true, op: '', lost: true});
     }
 
     newGame() {
@@ -181,9 +189,9 @@ class Board extends Component {
         this.setState({currentSpeed: this.state.initialSpeed, score: 0, interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
         this.boardRef.current.focus();
     }
-    startNewMpGame() {    
+    startNewMpGame() {
         this.boardRef.current.focus();
-        this.setState({currentSpeed: this.state.initialSpeed, score: 0, board: createBoard(), opBoard: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, mpGameOver: false, paused: false}, this.newPiece);
+        this.setState({currentSpeed: this.state.initialSpeed, score: 0, board: createBoard(), opBoard: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', mpGameOver: false, paused: false}, this.newPiece);
         const username = this.props.isLoggedIn ? this.props.user.username : 'default username';
         socket.emit('playMp', username);
         this.createMessage('Waiting for another player...')
@@ -603,8 +611,7 @@ class Board extends Component {
                 {this.props.mode === 'sp' ?
                     <div>
                         <button onClick={this.pause} className="ui-button">Pause</button>
-                        <button onClick={this.newGame} className="ui-button">New Game</button>
-                        <button onClick={e => {this.createMessage('derp')}}>test message</button><br /><br />
+                        <button onClick={this.newGame} className="ui-button">New Game</button><br /><br />
                     </div>
                 : null}
                 <div className="scoreboard-holder">

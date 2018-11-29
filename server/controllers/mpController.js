@@ -11,12 +11,17 @@ module.exports = {
                 winnerRating = user.rating;
             else
                 loserRating = user.rating;
-
         });
         // this should actually calculate rating
         winnerRating++;
         loserRating--;
         const updatedRatings = await db.mp_update_ratings({winner, winnerRating, loser, loserRating})
         res.send(updatedRatings);
+    },
+    getRankings(req, res) {
+        const db = req.app.get('db');
+        db.mp_get_rankings().then(dbRes => {
+            res.send(dbRes);
+        });
     }
 }

@@ -8,7 +8,7 @@ const DashboardNav = (props) => {
     return (
         <div className="DashboardNav">
             <div>
-                <Link to={"/scores"}>Profile</Link>
+                <Link to="/scores">Profile</Link>
             </div>
             <div>
                 <Link to="/sp">Play Singleplayer</Link>
@@ -17,10 +17,10 @@ const DashboardNav = (props) => {
                 <Link to="/mp">Play Multiplayer</Link>
             </div>
             <div>
-                <Link to="/leaderboard">SP Leaderboard</Link>
+                <Link to="/spleaderboard">SP Leaderboard</Link>
             </div>
             <div>
-                <Link to="/rankings">MP Leaderboard</Link>
+                <Link to="/mpleaderboard">MP Leaderboard</Link>
             </div>
             <div>
                 <Link to="/settings">Settings</Link>

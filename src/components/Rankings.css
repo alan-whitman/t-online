@@ -1,0 +1,20 @@
+.rankings {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+}
+.rankings>div {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid black;
+}
+.rankings>div>div {
+    padding: 8px 8px;
+}
+.rankings-header {
+    font-weight: 900;
+    font-size: 18px;
+}
+h2 {
+    font-size: 24px;
+}

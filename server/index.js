@@ -47,7 +47,8 @@ app.get('/sp/leaderboard', sp.getLeaderboard);
     MP game endpoints
 */
 
-app.post('/mp/update_ratings', mc.updateRatings)
+app.post('/mp/update_ratings', mc.updateRatings);
+app.get('/mp/rankings', mc.getRankings);
 
 /*
     Express Listen
