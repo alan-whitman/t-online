@@ -13,7 +13,7 @@ let socket = {
     }
 };
 
-const BLOCK_SCALE = 20;
+const BLOCK_SCALE = 23;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
@@ -33,6 +33,7 @@ class Board extends Component {
             paused: false,
             lost: true,
             swapped: false,
+            mpGameOver: false,
             heldPiece: '',
             initialSpeed,
             currentSpeed: initialSpeed,
@@ -59,15 +60,13 @@ class Board extends Component {
         this.createMessage = this.createMessage.bind(this);
         this.handleInput = this.handleInput.bind(this);
         this.startGame = this.startGame.bind(this);
+        this.startNewMpGame = this.startNewMpGame.bind(this);
         this.newGame = this.newGame.bind(this);
+        this.endGame = this.endGame.bind(this);
         this.pause = this.pause.bind(this);
         this.tick = this.tick.bind(this);
         this.boardRef = React.createRef();
         this.messageRef = React.createRef();
-
-        // if (this.props.mode === 'mp' && this.props.isLoggedIn) {
-        // }
-
     }
     componentDidMount() {
         if (this.props.mode === 'mp' && this.props.isLoggedIn) {
@@ -85,10 +84,12 @@ class Board extends Component {
                 this.countDown();
             });
             socket.on('userDisconnected', () => {
-                this.createMessage('the other player disconnected, you win by default');
+                this.createMessage('The other player disconnected, so you win by default.');
+                this.endGame();
             });
             socket.on('youWin', () => {
-                this.createMessage('the other player lost! that means you win. Good job');
+                this.createMessage('The other player lost! That means you win.');
+                this.endGame();
             });
 
             const username = this.props.isLoggedIn ? this.props.user.username : 'default username';
@@ -135,7 +136,7 @@ class Board extends Component {
     }
 
     /*
-        Game logic
+        Starting and stopping games
     */
 
     countDown() {
@@ -151,6 +152,32 @@ class Board extends Component {
         if (this.boardRef.current)
             this.boardRef.current.focus();
     }
+    endGame() {
+        clearInterval(this.state.interval);
+        this.setState({mpGameOver: true});
+    }
+
+    newGame() {
+        if (this.state.interval)
+            clearInterval(this.state.interval);
+        let interval = setInterval(this.tick, this.state.initialSpeed);
+        this.boardRef.current.focus();
+        this.setState({currentSpeed: this.state.initialSpeed, score: 0, interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
+        this.boardRef.current.focus();
+    }
+    startNewMpGame() {    
+        this.boardRef.current.focus();
+        this.setState({currentSpeed: this.state.initialSpeed, score: 0, board: createBoard(), opBoard: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, mpGameOver: false, paused: false}, this.newPiece);
+        const username = this.props.isLoggedIn ? this.props.user.username : 'default username';
+        socket.emit('playMp', username);
+        this.createMessage('Waiting for another player...')
+        this.boardRef.current.focus();
+    }
+
+    /*
+        Game logic
+    */
+
     increaseSpeed(level) {
         let currentSpeed = Math.floor(((0.8 - ((level - 1) * 0.007)) ** (level - 1)) * 1000);
         clearInterval(this.state.interval);
@@ -164,7 +191,7 @@ class Board extends Component {
             if (this.props.mode === 'mp')
                 socket.emit('iLost');
             clearInterval(this.state.interval);
-            this.setState({lost: true, paused: false});
+            this.setState({lost: true, paused: false, mpGameOver: true});
             this.createMessage('Game over! CLick New Game to play again!')
             this.addToScores();
         }
@@ -184,13 +211,6 @@ class Board extends Component {
             nextPiece = this.state.shapeOrder[currentShape];
         }
         this.setState({piece: {...this.state.piece, x: INITIAL_X, y: INITIAL_Y, orientation: 0, shape: nextShape}, currentShape, nextPiece, swapped}, this.checkForLoss);
-    }
-    newGame() {
-        clearInterval(this.state.interval);
-        let interval = setInterval(this.tick, this.state.initialSpeed);
-        this.boardRef.current.focus();
-        this.setState({currentSpeed: this.state.initialSpeed, score: 0, interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
-        this.boardRef.current.focus();
     }
     getScore(lines) {
         const { level } = this.state;
@@ -511,11 +531,11 @@ class Board extends Component {
                     br = 'none';
                 if (x === 0) {
                     if (y > 0)
-                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE - 1) + BLOCK_SCALE * 20, width: blockWidth + 1, height: blockWidth, borderRight: '1px solid lightgrey'}} className={pieceClass} />;
+                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE - 1) + BLOCK_SCALE * 18 - 9, width: blockWidth + 1, height: blockWidth, borderRight: '1px solid lightgrey'}} className={pieceClass} />;
                     else
-                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE - 1) + BLOCK_SCALE * 20, width: blockWidth + 1, height: blockWidth}} className={pieceClass} />;    
+                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE - 1) + BLOCK_SCALE * 18 - 9, width: blockWidth + 1, height: blockWidth}} className={pieceClass} />;    
                 } else {
-                    boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE) + BLOCK_SCALE * 20, width: blockWidth, height: blockWidth, borderRight: br}} className={pieceClass} />;
+                    boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE) + BLOCK_SCALE * 18 - 9, width: blockWidth, height: blockWidth, borderRight: br}} className={pieceClass} />;
                 }                
             }
         }
@@ -523,7 +543,7 @@ class Board extends Component {
     }
 
     render() {
-        const messageOffset = this.props.mode === 'sp' ? BLOCK_SCALE * 15 + 50 : BLOCK_SCALE * 30 + 50; 
+        const messageOffset = this.props.mode === 'sp' ? BLOCK_SCALE * 15 + 50 : BLOCK_SCALE * 28 + 50; 
         return (
             <div className="Board">
                 {this.props.mode === 'sp' ?
@@ -532,12 +552,16 @@ class Board extends Component {
                         <button onClick={this.newGame} className="ui-button">New Game</button>
                         <button onClick={e => {this.createMessage('derp')}}>test message</button><br /><br />
                     </div>
-                : null
-                }
+                : null}
                 <div className="scoreboard-holder">
                     <span className="scoreboard">Score: {this.state.score}</span>
                     <span className="scoreboard">Lines: {this.state.lines}</span> 
-                    <span className="scoreboard">Level: {this.state.level}</span>
+                    {this.props.mode === 'sp' ? 
+                        <span className="scoreboard">Level: {this.state.level}</span>
+                    : null}
+                    {this.state.mpGameOver ?
+                        <button onClick={this.startNewMpGame} className="ui-button">Play another game</button>
+                    : null}
                 </div>
                 
                 <div className="board" tabIndex="0" style={{width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 20 + 1}} ref={this.boardRef} onKeyDown={e => this.handleInput(e.key)}>
