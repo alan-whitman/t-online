@@ -57,18 +57,22 @@ app.listen(expressPort, () => console.log(expressPort));
 let roomCount = 0;
 
 io.on('connection', client => {
-    console.log('client connected');
+    console.log('client connected: ' + client.id);
     let myRoom;
     let roomSize;
-    client.on('playMp', () => {
+    client.on('playMp', (username) => {
+        client.username = username;
+        console.log(client.username);
         myRoom = 't' + roomCount;
         client.join(myRoom);
         io.to(myRoom).clients((err, clients) => {
             if (clients.length == 2) {
+                let userList = clients.map(client => io.sockets.connected[client].username);
                 roomCount++;
-                io.in(myRoom).emit('startGame');
+                io.in(myRoom).emit('startGame', userList);
             }
         });
+        console.log('sending room number')
         client.emit('roomNum', 'You are in room ' + myRoom);    
     });
 
@@ -76,6 +80,15 @@ io.on('connection', client => {
         client.to(myRoom).emit('relayBoard', board);
     });
 
+    client.on('iLost', () => {
+        client.to(myRoom).emit('youWin');
+    })
+
+    client.on('disconnect', () => {
+        io.to(myRoom).emit('userDisconnected')
+        console.log('client disconnected: ' + client.id);
+    });
 });
+
 
 io.listen(socketPort);

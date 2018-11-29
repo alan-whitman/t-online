@@ -7,11 +7,13 @@ import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard } fro
 import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
 
 import io from 'socket.io-client';
-const socket = io('http://192.168.10.189:4100');
+let socket = {
+    disconnect () {
 
+    }
+};
 
-
-const BLOCK_SCALE = 23;
+const BLOCK_SCALE = 20;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
@@ -62,32 +64,45 @@ class Board extends Component {
         this.tick = this.tick.bind(this);
         this.boardRef = React.createRef();
 
-        socket.on('relayBoard', opBoard => {
-            this.setState({opBoard});
-        });
-        socket.on('roomNum', roomMsg => {
-            console.log(roomMsg);
-        });
-        socket.on('startGame', this.startGame);
+        // if (this.props.mode === 'mp' && this.props.isLoggedIn) {
+        // }
 
     }
     componentDidMount() {
-        if (this.props.mode === 'mp') {
-            socket.emit('playMp');
-            // this.startGame();
+        if (this.props.mode === 'mp' && this.props.isLoggedIn) {
+            socket = io('http://localhost:4100');
+
+            socket.on('relayBoard', opBoard => {
+                this.setState({opBoard});
+            });
+            socket.on('roomNum', roomMsg => {
+                console.log(roomMsg);
+            });
+            socket.on('startGame', (userList) => {
+                console.log('playing against' + userList)
+                this.countDown();
+            });
+            socket.on('userDisconnected', () => {
+                console.log('the other player disconnected, you win by default');
+            });
+            socket.on('youWin', () => {
+                console.log('the other player lost! that means you win. Good job');
+            });
+
+            const username = this.props.isLoggedIn ? this.props.user.username : 'default username';
+            socket.emit('playMp', username);
+        }
+        else if (this.props.mode === 'mp' && !this.props.isLoggedIn) {
+            console.log('you need to be logged in to play MP')
         }
         else if (this.props.mode === 'sp') {
-            this.createMessage('3');
-            setTimeout(() => this.createMessage('2'), 1000);
-            setTimeout(() => this.createMessage('1'), 2000);
-            setTimeout(() => this.createMessage('GO!'), 3000);
-            setTimeout(this.startGame, 3000);
+            this.countDown();
         }
     }
     componentWillUnmount() {
         clearInterval(this.state.interval);
         if (this.props.mode === 'mp')
-            socket.emit('disconnect')
+            socket.disconnect();
     }
     componentDidUpdate(prevProps, prevState) {
         if (this.state.piece !== prevState.piece && this.props.mode === 'mp') {
@@ -105,7 +120,7 @@ class Board extends Component {
     */
 
     addToScores() {
-        if (this.props.isLoggedIn && this.state.score > 0) {
+        if (this.props.isLoggedIn && this.state.score > 0 && this.props.mode === 'sp') {
             const { score } = this.state;
             axios.post('/sp/add_score', {score}).then(res => {
                 this.createMessage('Score recorded!');
@@ -117,6 +132,13 @@ class Board extends Component {
         Game logic
     */
 
+    countDown() {
+        this.createMessage('3');
+        setTimeout(() => this.createMessage('2'), 1000);
+        setTimeout(() => this.createMessage('1'), 2000);
+        setTimeout(() => this.createMessage('GO!'), 3000);
+        setTimeout(this.startGame, 3000);
+    }
     startGame() {
         let interval = setInterval(this.tick, this.state.initialSpeed);
         this.setState({interval, lost: false});
@@ -127,13 +149,13 @@ class Board extends Component {
         let currentSpeed = Math.floor(((0.8 - ((level - 1) * 0.007)) ** (level - 1)) * 1000);
         clearInterval(this.state.interval);
         let interval = setInterval(this.tick, currentSpeed);
-        this.setState({currentSpeed, interval})
-
+        this.setState({currentSpeed, interval});
     }
     checkForLoss() {
         const { board, piece } = this.state;
         const potentialBlock = getPieceBlocks(piece);
         if (!canMove(board, potentialBlock)) {
+            socket.emit('iLost');
             clearInterval(this.state.interval);
             this.setState({lost: true, paused: false});
             this.createMessage('Game over! CLick New Game to play again!')
@@ -202,7 +224,7 @@ class Board extends Component {
         if (clearLines.length > 0)
             score += this.getScore(clearLines.length)
         const level = Math.floor(lines / 10) + 1;
-        if (level > this.state.level) {
+        if (level > this.state.level && this.props.mode === 'sp') {
             this.createMessage('Level up!')
             this.increaseSpeed(level);
         }
@@ -524,7 +546,7 @@ class Board extends Component {
                     }
                     {this.renderBoard()}
                     {this.props.mode === 'mp' ? this.renderOpBoard() : null}
-                    {this.renderPieces()}
+                    {this.props.isLoggedIn ? this.renderPieces() : null}
                 </div>
             </div>
         )

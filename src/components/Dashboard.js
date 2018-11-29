@@ -14,8 +14,8 @@ class Dashboard extends Component {
                 <div className="content-area">
                     <Switch>
                         <Route path="/leaderboard" exact component={Leaderboard} />
-                        <Route path="/sp" exact render={(props) => <Board {...props} isLoggedIn={this.props.isLoggedIn} mode={'sp'} key={'sp'} />} />
-                        <Route path="/mp" exact render={(props) => <Board {...props} isLoggedIn={this.props.isLoggedIn} mode={'mp'} key={'mp'} />} />
+                        <Route path="/sp" exact render={(props) => <Board {...props} user={this.props.user} isLoggedIn={this.props.isLoggedIn} mode={'sp'} key={'sp' + this.props.isLoggedIn} />} />
+                        <Route path="/mp" exact render={(props) => <Board {...props} user={this.props.user} isLoggedIn={this.props.isLoggedIn} mode={'mp'} key={'mp' + this.props.isLoggedIn} />} />
                         <Route path="/scores/:username" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} />} />
                         <Route path="/scores" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} user={this.props.user} />} />
                     </Switch>
