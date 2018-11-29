@@ -87,7 +87,7 @@
 .message-holder   {
     border: 1px solid lightgrey;
     position: absolute;
-    overflow: hidden;
+    overflow: scroll;
     padding: 3px;
 
 }

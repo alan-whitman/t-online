@@ -1,9 +1,12 @@
 .Message {
-    animation-name: message;
+    /* animation-name: message;
     animation-duration: 1s;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
-    animation-delay: 5s
+    animation-delay: 5s; */
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 4px;
 
 }
 

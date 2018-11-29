@@ -1,7 +1,7 @@
-let games = {};
+let room = 0;
 
 module.exports = {
-    registerPlayer(player) {
+    registerPlayer() {
 
     },
     relayBoard(board) {

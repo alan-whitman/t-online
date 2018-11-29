@@ -1,2 +1,2 @@
-import openSocket from 'socket.io-client';
-const socket = openSocket('http://localhost:4100');
+import io from 'socket.io-client';
+const socket = io('http://localhost:4100', {username: 'some username'});

@@ -3,6 +3,7 @@ import DashboardNav from './DashboardNav';
 import Board from './Board';
 import Scores from './Scores';
 import Leaderboard from './Leaderboard';
+import Landing from './Landing';
 import './Dashboard.css';
 import { Switch, Route } from 'react-router-dom';
 
@@ -18,6 +19,7 @@ class Dashboard extends Component {
                         <Route path="/mp" exact render={(props) => <Board {...props} user={this.props.user} isLoggedIn={this.props.isLoggedIn} mode={'mp'} key={'mp' + this.props.isLoggedIn} />} />
                         <Route path="/scores/:username" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} />} />
                         <Route path="/scores" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} user={this.props.user} />} />
+                        <Route path="/" component={Landing} />
                     </Switch>
                 </div>
             </div>

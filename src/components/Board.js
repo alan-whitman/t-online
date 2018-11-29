@@ -63,6 +63,7 @@ class Board extends Component {
         this.pause = this.pause.bind(this);
         this.tick = this.tick.bind(this);
         this.boardRef = React.createRef();
+        this.messageRef = React.createRef();
 
         // if (this.props.mode === 'mp' && this.props.isLoggedIn) {
         // }
@@ -76,24 +77,26 @@ class Board extends Component {
                 this.setState({opBoard});
             });
             socket.on('roomNum', roomMsg => {
-                console.log(roomMsg);
+                this.createMessage(roomMsg);
             });
             socket.on('startGame', (userList) => {
-                console.log('playing against' + userList)
+                const op = userList[0] === this.props.user.username ? userList[1] : userList[0];
+                this.createMessage('Player found! Playing against ' + op)
                 this.countDown();
             });
             socket.on('userDisconnected', () => {
-                console.log('the other player disconnected, you win by default');
+                this.createMessage('the other player disconnected, you win by default');
             });
             socket.on('youWin', () => {
-                console.log('the other player lost! that means you win. Good job');
+                this.createMessage('the other player lost! that means you win. Good job');
             });
 
             const username = this.props.isLoggedIn ? this.props.user.username : 'default username';
             socket.emit('playMp', username);
+            this.createMessage('Waiting for another player...')
         }
         else if (this.props.mode === 'mp' && !this.props.isLoggedIn) {
-            console.log('you need to be logged in to play MP')
+            this.createMessage('you need to be logged in to play MP')
         }
         else if (this.props.mode === 'sp') {
             this.countDown();
@@ -105,6 +108,9 @@ class Board extends Component {
             socket.disconnect();
     }
     componentDidUpdate(prevProps, prevState) {
+        if (this.messageRef)
+            console.log()
+            this.messageRef.current.scrollTop = this.messageRef.current.scrollHeight;
         if (this.state.piece !== prevState.piece && this.props.mode === 'mp') {
             const currentBlocks = getPieceBlocks(this.state.piece);
             let board = this.state.board.map(column => {
@@ -155,7 +161,8 @@ class Board extends Component {
         const { board, piece } = this.state;
         const potentialBlock = getPieceBlocks(piece);
         if (!canMove(board, potentialBlock)) {
-            socket.emit('iLost');
+            if (this.props.mode === 'mp')
+                socket.emit('iLost');
             clearInterval(this.state.interval);
             this.setState({lost: true, paused: false});
             this.createMessage('Game over! CLick New Game to play again!')
@@ -402,7 +409,7 @@ class Board extends Component {
         let { messages } = this.state;
         messages.push(message);
         this.setState({messages});
-        setTimeout(this.clearMessage, 6000);
+        // setTimeout(this.clearMessage, 6000);
     }
     renderMessages() {
         if (this.state.messages[0]) {
@@ -516,12 +523,14 @@ class Board extends Component {
     }
 
     render() {
+        const messageOffset = this.props.mode === 'sp' ? BLOCK_SCALE * 15 + 50 : BLOCK_SCALE * 30 + 50; 
         return (
             <div className="Board">
                 {this.props.mode === 'sp' ?
                     <div>
                         <button onClick={this.pause} className="ui-button">Pause</button>
-                        <button onClick={this.newGame} className="ui-button">New Game</button><br /><br />
+                        <button onClick={this.newGame} className="ui-button">New Game</button>
+                        <button onClick={e => {this.createMessage('derp')}}>test message</button><br /><br />
                     </div>
                 : null
                 }
@@ -538,15 +547,12 @@ class Board extends Component {
                     <div className="holder" style={{width: BLOCK_SCALE * 4 + 10, height: BLOCK_SCALE * 6, left: BLOCK_SCALE * 12 + 10, top: BLOCK_SCALE * 6 + 9}}>
                         Hold
                     </div>
-                    {this.props.mode === 'sp' ? 
-                        <div className="message-holder" style={{left: BLOCK_SCALE * 15 + 50, top: -1, width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 6}}>
-                            {this.renderMessages()}
-                        </div>
-                    : null
-                    }
+                    <div className="message-holder" ref={this.messageRef} style={{left: messageOffset, top: -1, width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 12 + 10}}>
+                        {this.renderMessages()}
+                    </div>
                     {this.renderBoard()}
                     {this.props.mode === 'mp' ? this.renderOpBoard() : null}
-                    {this.props.isLoggedIn ? this.renderPieces() : null}
+                    {this.props.isLoggedIn || this.props.mode === 'sp' ? this.renderPieces() : null}
                 </div>
             </div>
         )

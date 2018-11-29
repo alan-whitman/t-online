@@ -62,7 +62,6 @@ io.on('connection', client => {
     let roomSize;
     client.on('playMp', (username) => {
         client.username = username;
-        console.log(client.username);
         myRoom = 't' + roomCount;
         client.join(myRoom);
         io.to(myRoom).clients((err, clients) => {
@@ -70,9 +69,12 @@ io.on('connection', client => {
                 let userList = clients.map(client => io.sockets.connected[client].username);
                 roomCount++;
                 io.in(myRoom).emit('startGame', userList);
+                // if (userList[0] !== userList[1])
+                //     io.in(myRoom).emit('startGame', userList);
+                // else
+                //     io.in(myRoom).emit('playAgainstSelf');
             }
         });
-        console.log('sending room number')
         client.emit('roomNum', 'You are in room ' + myRoom);    
     });
 
