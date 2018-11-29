@@ -73,3 +73,15 @@ export const createBoard = () => {
     }
     return board;
 }
+
+export const addGarbage = (garbageLines, board) => {
+    const emptyCol = Math.floor(Math.random() * 10) + 1;
+    for (let y = 21; y >= 2; y--)
+        for (let x = 1; x <= 10; x++)
+            if (y - garbageLines >= 1)
+                board[x][y] = board[x][y - garbageLines];
+    for (let y = 1; y <= garbageLines; y++)
+        for (let x = 1; x <= 10; x++)
+            board[x][y] = x === emptyCol ? 0 : 10;
+    return board;
+}

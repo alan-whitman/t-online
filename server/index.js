@@ -5,7 +5,7 @@ const massive = require('massive');
 const bodyParser = require('body-parser');
 const ac = require('./controllers/authController');
 const sp = require('./controllers/spController');
-const mc = require('./controllers/socket/mpController');
+const mc = require('./controllers/mpController');
 require('dotenv').config();
 
 const { CONNECTION_STRING: cs, SOCKET_PORT: socketPort, EXPRESS_PORT: expressPort, SESSION_SECRET: ss } = process.env;
@@ -43,6 +43,11 @@ app.get('/sp/get_scores/:username', sp.getScores);
 app.get('/sp/get_scores', sp.getScores);
 app.get('/sp/leaderboard', sp.getLeaderboard);
 
+/*
+    MP game endpoints
+*/
+
+app.post('/mp/update_ratings', mc.updateRatings)
 
 /*
     Express Listen
@@ -84,7 +89,11 @@ io.on('connection', client => {
 
     client.on('iLost', () => {
         client.to(myRoom).emit('youWin');
-    })
+    });
+
+    client.on('sendGarbage', (garbage) => {
+        client.to(myRoom).emit('relayGarbage', garbage);
+    });
 
     client.on('disconnect', () => {
         io.to(myRoom).emit('userDisconnected')

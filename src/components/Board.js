@@ -3,7 +3,7 @@ import axios from 'axios';
 import 'hacktimer';
 import './Board.css';
 import Message from './Message';
-import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard } from '../controllers/board_controller';
+import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard, addGarbage } from '../controllers/board_controller';
 import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
 
 import io from 'socket.io-client';
@@ -29,6 +29,7 @@ class Board extends Component {
         this.state = {
             board: createBoard(),
             opBoard: createBoard(),
+            op: '',
             interval: -1,
             paused: false,
             lost: true,
@@ -46,6 +47,7 @@ class Board extends Component {
             chainCount: 0,
             messages: [],
             b2btetris: false,
+            garbagePile: 0,
             piece: {
                 x: INITIAL_X,
                 y: INITIAL_Y,
@@ -62,7 +64,7 @@ class Board extends Component {
         this.startGame = this.startGame.bind(this);
         this.startNewMpGame = this.startNewMpGame.bind(this);
         this.newGame = this.newGame.bind(this);
-        this.endGame = this.endGame.bind(this);
+        this.winGame = this.winGame.bind(this);
         this.pause = this.pause.bind(this);
         this.tick = this.tick.bind(this);
         this.boardRef = React.createRef();
@@ -81,15 +83,20 @@ class Board extends Component {
             socket.on('startGame', (userList) => {
                 const op = userList[0] === this.props.user.username ? userList[1] : userList[0];
                 this.createMessage('Player found! Playing against ' + op)
+                this.setState({op});
                 this.countDown();
             });
             socket.on('userDisconnected', () => {
                 this.createMessage('The other player disconnected, so you win by default.');
-                this.endGame();
+                this.winGame();
             });
             socket.on('youWin', () => {
                 this.createMessage('The other player lost! That means you win.');
-                this.endGame();
+                this.winGame();
+            });
+
+            socket.on('relayGarbage', (garbage) => {
+                this.setState({garbagePile: this.state.garbagePile + garbage});
             });
 
             const username = this.props.isLoggedIn ? this.props.user.username : 'default username';
@@ -152,9 +159,18 @@ class Board extends Component {
         if (this.boardRef.current)
             this.boardRef.current.focus();
     }
-    endGame() {
+    winGame() {
+        axios.post('/mp/update_ratings', {winner: this.props.user.username, loser: this.state.op}).then(res => {
+            let newRating;
+            res.data.forEach(user => {
+                if (user.username === this.props.user.username)
+                    newRating = user.rating;
+            });
+            console.log(this.props.user.username === this.state.op);
+            this.createMessage('Your new rating is ' + newRating);
+        }).catch(err => {this.createMessage('No rating change since you played yourself.'); console.error(err);});
         clearInterval(this.state.interval);
-        this.setState({mpGameOver: true});
+        this.setState({mpGameOver: true, op: ''});
     }
 
     newGame() {
@@ -212,7 +228,35 @@ class Board extends Component {
         }
         this.setState({piece: {...this.state.piece, x: INITIAL_X, y: INITIAL_Y, orientation: 0, shape: nextShape}, currentShape, nextPiece, swapped}, this.checkForLoss);
     }
+    getGarbage(lines) {
+        let garbage = 0;
+        switch (lines) {
+            case 1:
+                garbage = 0;
+                break;
+            case 2:
+                garbage = 1;
+                break;
+            case 3:
+                garbage = 2;
+                break;
+            case 4:
+                garbage = this.state.b2btetris ? 5 : 4;
+                break;
+            default:
+                garbage = 0;
+                break;
+        }
+        return garbage;
+    }
     getScore(lines) {
+        //create garbage if in mp mode
+        if (this.props.mode === 'mp') {
+            let garbage = this.getGarbage(lines);
+            if (garbage > 0)
+                socket.emit('sendGarbage', garbage);
+        }
+        //update score
         const { level } = this.state;
         const scoreDict = {
             1: 100,
@@ -263,14 +307,24 @@ class Board extends Component {
             }
             board = clearTopLine(board);
         }
-        this.setState({board, score, lines, level})
+        this.setState({board, score, lines, level});
+        return clearLines.length;
     }
     landPiece() {
         let { board } = this.state;
         let currentBlocks = getPieceBlocks(this.state.piece);
         board = writeBoard([...board], currentBlocks, this.state.piece.shape);
-        this.setState({board});
-        this.checkForClears();
+        let linesCleared = this.checkForClears();
+        if (this.props.mode === 'mp') {
+            const { garbagePile } = this.state;
+            const excessGarbage = garbagePile - this.getGarbage(linesCleared);
+            console.log(excessGarbage);
+            if (excessGarbage > 0)
+                board = addGarbage(excessGarbage, board);
+            else if (excessGarbage < 0)
+                socket.emit('sendGarbage', Math.abs(excessGarbage));
+        }
+        this.setState({board, garbagePile: 0});
         this.newPiece();
     }
     tick() {

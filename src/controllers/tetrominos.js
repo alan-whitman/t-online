@@ -21,7 +21,8 @@ export const convertBoardCodeToShape = (num) => {
         5: 'L',
         6: 'S',
         7: 'Z',
-        9: 'B'
+        9: 'B',
+        10: 'G'
     };
     return styleMap[num];
 }
