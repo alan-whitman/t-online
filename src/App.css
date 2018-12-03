@@ -13,3 +13,25 @@ a {
   text-decoration: none;
   color: black;
 }
+h2 {
+  font-size: 24px;
+  font-weight: 900;
+  padding: 10px 0px;
+}
+h3 {
+  font-size: 21px;
+  font-weight: 900;
+  padding: 10px 0px;
+}
+.ui-button {
+  border: 1px solid black;
+  height: 25px;
+  font-size: 16px;
+  margin-right: 20px;
+  padding: 0px 15px;
+  border-radius: 3px;
+}
+.ui-button:hover {
+  color: darkblue;
+  cursor: pointer;
+}

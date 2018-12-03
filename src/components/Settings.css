@@ -1,0 +1,24 @@
+.user-settings {
+    display: flex;
+    flex-wrap: wrap;
+    width: 400px;
+}
+.user-settings div:nth-child(odd) {
+    width: 70%;
+    padding: 15px 0px;
+    border-bottom: 1px solid lightgray;
+}
+.user-settings div:nth-child(even) {
+    width: 30%;
+    padding: 15px 0px;
+    border-bottom: 1px solid lightgray;
+}
+.user-settings div:last-child {
+    border-bottom: none;
+}
+.user-settings div:nth-last-child(2) {
+    border-bottom: none;
+}
+.user-settings div>input {
+    width: 90px;
+}

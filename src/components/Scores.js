@@ -28,13 +28,13 @@ class Scores extends Component {
         this.getScores();
     }
     componentDidUpdate(prevProps) {
-        if (this.props.match.params.username !== prevProps.match.params.username || this.props.isLoggedIn !== prevProps.isLoggedIn) // || this.props.user.username !== prevProps.user.username
+        if (this.props.match.params.username !== prevProps.match.params.username || this.props.isLoggedIn !== prevProps.isLoggedIn)
             this.getScores();
     }
     render() {
         let userMessage;
         if (!this.props.isLoggedIn && !this.props.match.params.username)
-            userMessage = 'Please login or a visit another user\'s history page to see a game history';
+            userMessage = 'Please login or a visit another user\'s scores page to see a game history';
         else if (this.props.match.params.username)
             userMessage = this.props.match.params.username;
         else

@@ -12,12 +12,23 @@ class App extends Component {
       isLoggedIn: false,
       user: {},
       authError: '',
-      showMenu: true
+      showMenu: true,
+      settings: {
+        left: 'ArrowLeft',
+        right: 'ArrowRight',
+        down: 'ArrowDown',
+        rotateClockwise: 'x',
+        rotateCounterClockwise: 'z',
+        hardDrop: 'ArrowUp',
+        holdPiece: 'c',
+        pause: 'Space'
+      }
     }
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
     this.register = this.register.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
+    this.updateSettings = this.updateSettings.bind(this);
   }
   componentDidMount() {
     axios.get('/auth/current_user').then(res => {
@@ -44,6 +55,9 @@ class App extends Component {
       this.setState({user: res.data, isLoggedIn: true, authError: ''});
     }).catch(err => this.setState({authError: err.response.data}));
   }
+  updateSettings(newSettings) {
+    this.setState({settings: newSettings});
+  }
   toggleMenu() {
     this.setState({showMenu: !this.state.showMenu});
   }
@@ -64,6 +78,8 @@ class App extends Component {
           isLoggedIn={this.state.isLoggedIn}
           showMenu={this.state.showMenu}
           toggleMenu={this.toggleMenu}
+          settings={this.state.settings}
+          updateSettings={this.updateSettings}
         />
       </div>
     );

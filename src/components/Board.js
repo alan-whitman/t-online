@@ -158,7 +158,7 @@ class Board extends Component {
         setTimeout(() => this.createMessage('2'), 2000);
         setTimeout(() => this.createMessage('1'), 3000);
         setTimeout(() => this.createMessage('GO!'), 4000);
-        setTimeout(this.startGame, 3000);
+        setTimeout(this.startGame, 4000);
     }
     startGame() {
         let interval = setInterval(this.tick, this.state.initialSpeed);
@@ -183,12 +183,12 @@ class Board extends Component {
     }
 
     newGame() {
-        if (this.state.interval)
-            clearInterval(this.state.interval);
-        let interval = setInterval(this.tick, this.state.initialSpeed);
-        this.boardRef.current.focus();
-        this.setState({currentSpeed: this.state.initialSpeed, score: 0, interval, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
-        this.boardRef.current.focus();
+        clearInterval(this.state.interval);
+        // let interval = setInterval(this.tick, this.state.initialSpeed);
+        // this.boardRef.current.focus();
+        this.setState({currentSpeed: this.state.initialSpeed, score: 0, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
+        // this.boardRef.current.focus();
+        this.countDown();
     }
     startNewMpGame() {
         this.boardRef.current.focus();
@@ -213,10 +213,13 @@ class Board extends Component {
         const { board, piece } = this.state;
         const potentialBlock = getPieceBlocks(piece);
         if (!canMove(board, potentialBlock)) {
-            if (this.props.mode === 'mp')
+            let mpgo = false;
+            if (this.props.mode === 'mp') {
                 socket.emit('iLost');
+                mpgo = true;
+            }
             clearInterval(this.state.interval);
-            this.setState({lost: true, paused: false, mpGameOver: true});
+            this.setState({lost: true, paused: false, mpGameOver: mpgo});
             this.createMessage('Game over! CLick New Game to play again!')
             this.addToScores();
         }
@@ -327,7 +330,6 @@ class Board extends Component {
         if (this.props.mode === 'mp') {
             const { garbagePile } = this.state;
             const excessGarbage = garbagePile - this.getGarbage(linesCleared);
-            console.log(excessGarbage);
             if (excessGarbage > 0)
                 board = addGarbage(excessGarbage, board);
             else if (excessGarbage < 0)
@@ -350,8 +352,6 @@ class Board extends Component {
     /*
         Movement and Controls
     */
-
-
 
     hardDrop() {
         const { board } = this.state;
@@ -421,8 +421,11 @@ class Board extends Component {
                 break;
             case 'ArrowDown':
                 potentialBlock = getPotentialBlock(DOWN, piece);
-                if (canMove(board, potentialBlock))
-                    this.setState({piece: {...this.state.piece, y: y - 1}});
+                if (canMove(board, potentialBlock)) {
+                    clearInterval(this.state.interval);
+                    const newInterval = setInterval(this.tick, this.state.currentSpeed);
+                    this.setState({interval: newInterval, piece: {...this.state.piece, y: y - 1}});
+                }
                 else
                     this.landPiece();
                 break;

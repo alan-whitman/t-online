@@ -35,18 +35,6 @@
     justify-content: flex-start;
     margin-bottom: 60px;
 }
-.ui-button {
-    border: 1px solid black;
-    height: 25px;
-    font-size: 16px;
-    margin-right: 20px;
-    padding: 0px 15px;
-    border-radius: 3px;
-}
-.ui-button:hover {
-    color: darkblue;
-    cursor: pointer;
-}
 .E {
     border-radius: 0px;
     border-right: 1px solid lightgrey;

@@ -51,6 +51,10 @@ app.post('/mp/update_ratings', mc.updateRatings);
 app.get('/mp/rankings', mc.getRankings);
 
 /*
+    User settings endpoints
+*/
+
+/*
     Express Listen
 */
 

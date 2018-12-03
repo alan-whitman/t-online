@@ -5,12 +5,14 @@ import Scores from './Scores';
 import Leaderboard from './Leaderboard';
 import Rankings from './Rankings';
 import Landing from './Landing';
+import Settings from './Settings';
 import { Switch, Route } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import './Dashboard.css';
 
 
 class Dashboard extends Component {
+
     render() {
         return (
             <div className="Dashboard">
@@ -22,7 +24,7 @@ class Dashboard extends Component {
                         transitionLeave={true}
                         transitionLeaveTimeout={200}>
                         {this.props.showMenu ?
-                            <DashboardNav toggleMenu={this.props.toggleMenu} />
+                            <DashboardNav />
                         : null}
                     </ReactCSSTransitionGroup>
                 </div>
@@ -30,10 +32,11 @@ class Dashboard extends Component {
                     <Switch>
                         <Route path="/spleaderboard" exact component={Leaderboard} />
                         <Route path="/mpleaderboard" component={Rankings} />
-                        <Route path="/sp" exact render={(props) => <Board {...props} user={this.props.user} isLoggedIn={this.props.isLoggedIn} mode={'sp'} key={'sp' + this.props.isLoggedIn} />} />
-                        <Route path="/mp" exact render={(props) => <Board {...props} user={this.props.user} isLoggedIn={this.props.isLoggedIn} mode={'mp'} key={'mp' + this.props.isLoggedIn} />} />
+                        <Route path="/sp" exact render={(props) => <Board {...props} user={this.props.user} isLoggedIn={this.props.isLoggedIn} settings={this.props.settings} mode={'sp'} key={'sp' + this.props.isLoggedIn} />} />
+                        <Route path="/mp" exact render={(props) => <Board {...props} user={this.props.user} isLoggedIn={this.props.isLoggedIn} settings={this.props.settings} mode={'mp'} key={'mp' + this.props.isLoggedIn} />} />
                         <Route path="/scores/:username" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} />} />
                         <Route path="/scores" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} user={this.props.user} />} />
+                        <Route path="/settings" render={(props) => <Settings {...props} isLoggedIn={this.props.isLoggedIn} user={this.props.user} settings={this.props.settings} updateSettings={this.props.updateSettings} />} />
                         <Route path="/" component={Landing} />
                     </Switch>
                 </div>

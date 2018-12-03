@@ -1,11 +1,3 @@
-h2 {
-    font-size: 24px;
-}
-h3 {
-    font-size: 21px;
-    font-weight: 900;
-    margin-bottom: 10px;
-}
 .scores {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
