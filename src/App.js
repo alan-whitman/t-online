@@ -11,11 +11,13 @@ class App extends Component {
     this.state = {
       isLoggedIn: false,
       user: {},
-      authError: ''
+      authError: '',
+      showMenu: true
     }
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
     this.register = this.register.bind(this);
+    this.toggleMenu = this.toggleMenu.bind(this);
   }
   componentDidMount() {
     axios.get('/auth/current_user').then(res => {
@@ -42,6 +44,9 @@ class App extends Component {
       this.setState({user: res.data, isLoggedIn: true, authError: ''});
     }).catch(err => this.setState({authError: err.response.data}));
   }
+  toggleMenu() {
+    this.setState({showMenu: !this.state.showMenu});
+  }
   render() {
     return (
       <div className="App">
@@ -52,10 +57,13 @@ class App extends Component {
           logout={this.logout}
           register={this.register}
           authError={this.state.authError}
+          toggleMenu={this.toggleMenu}
         />
         <Dashboard
           user={this.state.user}
           isLoggedIn={this.state.isLoggedIn}
+          showMenu={this.state.showMenu}
+          toggleMenu={this.toggleMenu}
         />
       </div>
     );

@@ -40,6 +40,12 @@
     height: 25px;
     font-size: 16px;
     margin-right: 20px;
+    padding: 0px 15px;
+    border-radius: 3px;
+}
+.ui-button:hover {
+    color: darkblue;
+    cursor: pointer;
 }
 .E {
     border-radius: 0px;
@@ -90,6 +96,15 @@
     border: 1px solid lightgrey;
     position: absolute;
     overflow: scroll;
-    padding: 3px;
 
+}
+.message-enter {
+    position: relative;
+    top: 5px;
+    opacity: 0.1;
+}
+.message-enter.message-enter-active {
+    top: 0px;
+    opacity: 1.0;
+    transition: all 200ms;
 }

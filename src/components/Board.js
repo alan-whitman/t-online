@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
 import 'hacktimer';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import './Board.css';
 import Message from './Message';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard, addGarbage } from '../controllers/board_controller';
@@ -13,7 +14,7 @@ let socket = {
     }
 };
 
-const BLOCK_SCALE = 23;
+const BLOCK_SCALE = 21;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
@@ -58,7 +59,6 @@ class Board extends Component {
         this.renderPieces = this.renderPieces.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
         this.renderMessages = this.renderMessages.bind(this);
-        this.clearMessage = this.clearMessage.bind(this);
         this.createMessage = this.createMessage.bind(this);
         this.handleInput = this.handleInput.bind(this);
         this.startGame = this.startGame.bind(this);
@@ -153,10 +153,11 @@ class Board extends Component {
     */
 
     countDown() {
-        this.createMessage('3');
-        setTimeout(() => this.createMessage('2'), 1000);
-        setTimeout(() => this.createMessage('1'), 2000);
-        setTimeout(() => this.createMessage('GO!'), 3000);
+        this.createMessage('Get ready!');
+        setTimeout(() => this.createMessage('3'), 1000);
+        setTimeout(() => this.createMessage('2'), 2000);
+        setTimeout(() => this.createMessage('1'), 3000);
+        setTimeout(() => this.createMessage('GO!'), 4000);
         setTimeout(this.startGame, 3000);
     }
     startGame() {
@@ -482,16 +483,10 @@ class Board extends Component {
         Message handling
     */
 
-    clearMessage() {
-        let { messages } = this.state;
-        messages.shift();
-        this.setState({messages});
-    }
     createMessage(message) {
         let { messages } = this.state;
         messages.push(message);
         this.setState({messages});
-        // setTimeout(this.clearMessage, 6000);
     }
     renderMessages() {
         if (this.state.messages[0]) {
@@ -633,7 +628,11 @@ class Board extends Component {
                         Hold
                     </div>
                     <div className="message-holder" ref={this.messageRef} style={{left: messageOffset, top: -1, width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 12 + 10}}>
-                        {this.renderMessages()}
+                        <ReactCSSTransitionGroup
+                            transitionName="message"
+                            transitionEnterTimeout={200}>
+                            {this.renderMessages()}
+                        </ReactCSSTransitionGroup>
                     </div>
                     {this.renderBoard()}
                     {this.props.mode === 'mp' ? this.renderOpBoard() : null}

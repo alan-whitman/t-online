@@ -27,6 +27,11 @@ class Header extends Component {
     render() {
         return (
             <div className="Header">
+                <div className="menu-toggle" onClick={this.props.toggleMenu}>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
                 <div className="title"><Link to="/">T</Link></div>
                 <div className="authError">{this.props.authError}</div>
                 {this.props.isLoggedIn ? 

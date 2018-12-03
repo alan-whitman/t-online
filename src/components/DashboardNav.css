@@ -6,7 +6,7 @@
     background-color: darkblue;
     padding: 4px 30px 4px 30px;
 }
-.DashboardNav div {
+.DashboardNav a {
     background-color: white;
     text-align: center;
     padding: 5px 15px;
