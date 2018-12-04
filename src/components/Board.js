@@ -406,20 +406,20 @@ class Board extends Component {
             }
         }
         switch (key) {
-            case 'ArrowLeft':
+            case this.props.settings.left:
                 potentialBlock = getPotentialBlock(LEFT, piece);
                 if (canMove(board, potentialBlock))
                     this.setState({piece: {...this.state.piece, x: x - 1}});
                 break;
-            case 'ArrowRight':
+            case this.props.settings.right:
                 potentialBlock = getPotentialBlock(RIGHT, piece);
                 if (canMove(board, potentialBlock))
                     this.setState({piece: {...this.state.piece, x: x + 1}});
                 break;
-            case 'ArrowUp':
+            case this.props.settings.hardDrop:
                 this.hardDrop();
                 break;
-            case 'ArrowDown':
+            case this.props.settings.down:
                 potentialBlock = getPotentialBlock(DOWN, piece);
                 if (canMove(board, potentialBlock)) {
                     clearInterval(this.state.interval);
@@ -429,10 +429,10 @@ class Board extends Component {
                 else
                     this.landPiece();
                 break;
-            case 'c':
+            case this.props.settings.holdPiece:
                 this.holdPiece();
                 break;
-            case 'x':
+            case this.props.settings.rotateClockwise:
                 potentialPiece = {...piece};
                 potentialPiece.orientation = piece.orientation === 3 ? 0 : piece.orientation + 1;
                 potentialBlock = getPieceBlocks(potentialPiece);
@@ -453,7 +453,7 @@ class Board extends Component {
                     break;
                 }                
                 break;
-            case 'z':
+            case this.props.settings.rotateCounterClockwise:
                 potentialPiece = {...piece};
                 potentialPiece.orientation = piece.orientation === 0 ? 3 : piece.orientation - 1;
                 potentialBlock = getPieceBlocks(potentialPiece);
@@ -634,6 +634,7 @@ class Board extends Component {
                         <ReactCSSTransitionGroup
                             transitionName="message"
                             transitionEnterTimeout={200}>
+                            transitionLeaveTimeout={0}
                             {this.renderMessages()}
                         </ReactCSSTransitionGroup>
                     </div>

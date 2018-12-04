@@ -1,0 +1,99 @@
+.Landing {
+    position: relative;
+}
+
+.splash-block {
+    position: absolute;
+    z-index: -10;
+}
+.splash-block>div {
+    width: 21px;
+    height: 21px;
+    border: 1px solid lightgray;
+    position: absolute;
+}
+.vis {
+    width: 21px;
+    height: 21px;
+    border: 1px solid lightgrey;
+    position: absolute;
+    background-color: rgb(230, 230, 230);
+    z-index: -11;
+}
+.invis {
+    width: 21px;
+    height: 21px;
+    opacity: 1.0;
+    position: absolute;
+    background-color: white;
+    border: 1px solid lightgray;
+}
+
+.i>div {background-color: darkcyan}
+.i>div:nth-child(1) {top: -40px; left: -10px}
+.i>div:nth-child(2) {top: -20px; left: -10px}
+.i>div:nth-child(3) {top: 0px; left: -10px}
+.i>div:nth-child(4) {top: 20px; left: -10px}
+
+.j>div {background-color: darkblue;}
+.j>div:nth-child(1) {top: -30px}
+.j>div:nth-child(2) {top: -10px}
+.j>div:nth-child(3) {top: 10px}
+.j>div:nth-child(4) {top: 10px; left: -20px}
+
+.o>div {background-color: darkgoldenrod;}
+.o>div:nth-child(1) {top: -20px; left: -20px}
+.o>div:nth-child(2) {top: 0px; left: -20px}
+.o>div:nth-child(3) {top: -20px; left: 0px}
+.o>div:nth-child(4) {top: 0px; left: 0px}
+
+.l>div {background-color: darkorange;}
+.l>div:nth-child(1) {top: -30px; left: -20px}
+.l>div:nth-child(2) {top: -10px; left: -20px}
+.l>div:nth-child(3) {top: 10px; left: -20px}
+.l>div:nth-child(4) {top: 10px; left: 0px}
+
+.t>div {background-color: purple;}
+.t>div:nth-child(1) {top: -20px; left: -10px}
+.t>div:nth-child(2) {top: 0px; left: -10px}
+.t>div:nth-child(3) {top: 0px; left: -30px}
+.t>div:nth-child(4) {top: 0px; left: 10px}
+
+.s>div {background-color: darkgreen;}
+.s>div:nth-child(1) {top: -20px; left: -30px}
+.s>div:nth-child(2) {top: -20px; left: -10px}
+.s>div:nth-child(3) {top: 0px; left: -10px}
+.s>div:nth-child(4) {top: 0px; left: 10px}
+
+.z>div {background-color: darkred;}
+.z>div:nth-child(1) {top: -20px; left: 10px}
+.z>div:nth-child(2) {top: -20px; left: -10px}
+.z>div:nth-child(3) {top: 0px; left: -10px}
+.z>div:nth-child(4) {top: 0px; left: -30px}
+
+
+@keyframes piece-spin-right {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+@keyframes piece-spin-left {
+    from {
+        transform: rotate(360deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+@keyframes piece-drop {
+    from {
+        top: 50px;
+    }
+    to {
+        top: 580px;
+    }
+}
+  
