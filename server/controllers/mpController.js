@@ -12,9 +12,12 @@ module.exports = {
             else
                 loserRating = user.rating;
         });
-        // this should actually calculate rating
-        winnerRating++;
-        loserRating--;
+        let wtr = 10 ** (winnerRating / 400);
+        let ltr = 10 ** (loserRating / 400);
+        let wer = wtr / (wtr + ltr);
+        let ler = ltr / (wtr + ltr);
+        winnerRating = Math.round(winnerRating + (32 * (1 - wer)));
+        loserRating = Math.round(loserRating + (32 * (0 - ler)));
         const updatedRatings = await db.mp_update_ratings({winner, winnerRating, loser, loserRating})
         res.send(updatedRatings);
     },

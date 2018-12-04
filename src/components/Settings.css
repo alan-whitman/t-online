@@ -3,6 +3,14 @@
     flex-wrap: wrap;
     width: 400px;
 }
+.user-settings>div>input {
+    border: 1px solid lightgray;
+    outline: 0;
+}
+.user-settings>div>input:focus {
+    border: 1px solid black;
+    outline: 0;
+}
 .user-settings div:nth-child(odd) {
     width: 70%;
     padding: 15px 0px;

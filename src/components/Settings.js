@@ -41,7 +41,7 @@ class Settings extends Component {
                 holdPiece: 'c',
                 pause: 'Space'
             }
-        });
+        }, () => this.props.updateSettings(this.state.controls));
     }
     updateSettingsCheck() {
         let settingCheck = true;
@@ -71,24 +71,28 @@ class Settings extends Component {
                 <h3>Controls</h3>
                 <div className="user-settings">
                     <div>Move piece left:</div>
-                    <div><input name="left" value={this.state.controls.left} onKeyDown={e => this.updateInput(e)} /></div>
+                    <div><input name="left" value={this.state.controls.left} onKeyDown={e => this.updateInput(e)} readOnly /></div>
                     <div>Move piece right:</div>
-                    <div><input name="right" value={this.state.controls.right} onKeyDown={e => this.updateInput(e)} /></div>
+                    <div><input name="right" value={this.state.controls.right} onKeyDown={e => this.updateInput(e)} readOnly /></div>
                     <div>Move piece down:</div>
-                    <div><input name="down" value={this.state.controls.down} onKeyDown={e => this.updateInput(e)} /></div>
+                    <div><input name="down" value={this.state.controls.down} onKeyDown={e => this.updateInput(e)} readOnly /></div>
                     <div>Rotate piece clockwise:</div>
-                    <div><input name="rotateClockwise" value={this.state.controls.rotateClockwise} onKeyDown={e => this.updateInput(e)} /></div>
+                    <div><input name="rotateClockwise" value={this.state.controls.rotateClockwise} onKeyDown={e => this.updateInput(e)} readOnly /></div>
                     <div>Rotate piece counterclockwise:</div>
-                    <div><input name="rotateCounterClockwise" value={this.state.controls.rotateCounterClockwise} onKeyDown={e => this.updateInput(e)} /></div>
+                    <div><input name="rotateCounterClockwise" value={this.state.controls.rotateCounterClockwise} onKeyDown={e => this.updateInput(e)} readOnly /></div>
                     <div>Hard drop:</div>
-                    <div><input name="hardDrop" value={this.state.controls.hardDrop} onKeyDown={e => this.updateInput(e)} /></div>
+                    <div><input name="hardDrop" value={this.state.controls.hardDrop} onKeyDown={e => this.updateInput(e)} readOnly /></div>
                     <div>Hold current piece:</div>
-                    <div><input name="holdPiece" value={this.state.controls.holdPiece} onKeyDown={e => this.updateInput(e)} /></div>
+                    <div><input name="holdPiece" value={this.state.controls.holdPiece} onKeyDown={e => this.updateInput(e)} readOnly /></div>
                     <div>Pause (singleplayer only):</div>
-                    <div><input name="pause" value={this.state.controls.pause} onKeyDown={e => this.updateInput(e)} /></div>
+                    <div><input name="pause" value={this.state.controls.pause} onKeyDown={e => this.updateInput(e)} readOnly /></div>
                     <div>
-                        <button className="ui-button" onClick={this.updateSettingsCheck}>Save</button> <button className="ui-button" onClick={this.defaultControls}>Default Controls</button><br /><br />
-                        <p>{this.state.message ? this.state.message : <br />}</p>
+                        <button className="ui-button" onClick={this.updateSettingsCheck}>Save</button> <button className="ui-button" onClick={this.defaultControls}>Restore Defaults</button><br /><br />
+                        {this.state.message ? 
+                            <p>{this.state.message}</p>
+                        :
+                            <p><br /></p>
+                        }
                     </div>
                     <div></div>
                 </div>

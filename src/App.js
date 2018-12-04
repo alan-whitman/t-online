@@ -38,8 +38,9 @@ class App extends Component {
   }
   logout() {
     axios.get('/auth/logout').then(res => {
-      this.setState({user: {}, isLoggedIn: false});
+      this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space'}});
     }).catch(err => console.log(err));
+    
   }
   login(username, password) {
     if (username.trim() === '' || password.trim() === '')
@@ -56,7 +57,9 @@ class App extends Component {
     }).catch(err => this.setState({authError: err.response.data}));
   }
   updateSettings(newSettings) {
-    this.setState({settings: newSettings});
+      this.setState({settings: newSettings});
+      if (this.state.isLoggedIn)
+        axios.post('/settings/update', newSettings).catch(err => console.error(err));
   }
   toggleMenu() {
     this.setState({showMenu: !this.state.showMenu});
@@ -80,6 +83,7 @@ class App extends Component {
           toggleMenu={this.toggleMenu}
           settings={this.state.settings}
           updateSettings={this.updateSettings}
+          key={this.state.isLoggedIn}
         />
       </div>
     );

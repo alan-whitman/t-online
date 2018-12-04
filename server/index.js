@@ -4,8 +4,9 @@ const session = require('express-session');
 const massive = require('massive');
 const bodyParser = require('body-parser');
 const ac = require('./controllers/authController');
+const sc = require('./controllers/settingsController');
 const sp = require('./controllers/spController');
-const mc = require('./controllers/mpController');
+const mp = require('./controllers/mpController');
 require('dotenv').config();
 
 const { CONNECTION_STRING: cs, SOCKET_PORT: socketPort, EXPRESS_PORT: expressPort, SESSION_SECRET: ss } = process.env;
@@ -47,12 +48,14 @@ app.get('/sp/leaderboard', sp.getLeaderboard);
     MP game endpoints
 */
 
-app.post('/mp/update_ratings', mc.updateRatings);
-app.get('/mp/rankings', mc.getRankings);
+app.post('/mp/update_ratings', mp.updateRatings);
+app.get('/mp/rankings', mp.getRankings);
 
 /*
     User settings endpoints
 */
+
+app.post('/settings/update', sc.updateSettings);
 
 /*
     Express Listen

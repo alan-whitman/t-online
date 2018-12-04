@@ -47,6 +47,7 @@ class Board extends Component {
             lines: 0,
             chainCount: 0,
             messages: [],
+            countDownTimers: [],
             b2btetris: false,
             garbagePile: 0,
             piece: {
@@ -88,16 +89,12 @@ class Board extends Component {
                 this.countDown();
             });
             socket.on('userDisconnected', () => {
-                if (!this.state.lost) {
-                    this.createMessage('The other player disconnected, so you win by default.');
-                    this.winGame();
-                }
+                this.createMessage('The other player disconnected, so you win by default.');
+                this.winGame();
             });
             socket.on('youWin', () => {
-                if (!this.state.lost) {
-                    this.createMessage('The other player lost! That means you won.');
-                    this.winGame();
-                }
+                this.createMessage('The other player lost! That means you won.');
+                this.winGame();
             });
 
             socket.on('relayGarbage', (garbage) => {
@@ -154,11 +151,13 @@ class Board extends Component {
 
     countDown() {
         this.createMessage('Get ready!');
-        setTimeout(() => this.createMessage('3'), 1000);
-        setTimeout(() => this.createMessage('2'), 2000);
-        setTimeout(() => this.createMessage('1'), 3000);
-        setTimeout(() => this.createMessage('GO!'), 4000);
-        setTimeout(this.startGame, 4000);
+        let countDownTimers = [];
+        countDownTimers.push(setTimeout(() => this.createMessage('3'), 1000));
+        countDownTimers.push(setTimeout(() => this.createMessage('2'), 2000));
+        countDownTimers.push(setTimeout(() => this.createMessage('1'), 3000));
+        countDownTimers.push(setTimeout(() => this.createMessage('GO!'), 4000));
+        countDownTimers.push(setTimeout(this.startGame, 4000));
+        this.setState({countDownTimers});
     }
     startGame() {
         let interval = setInterval(this.tick, this.state.initialSpeed);
@@ -167,15 +166,17 @@ class Board extends Component {
             this.boardRef.current.focus();
     }
     winGame() {
-        if (this.state.lost)
-            return;
+        if (this.state.lost) {
+            this.createMessage('Opponent disconnected before game began. Click "Play another game" to play again');
+            this.state.countDownTimers.forEach(interval => clearTimeout(interval));
+            return this.setState({mpGameOver: true, countDownTimers: []});
+        }
         axios.post('/mp/update_ratings', {winner: this.props.user.username, loser: this.state.op}).then(res => {
             let newRating;
             res.data.forEach(user => {
                 if (user.username === this.props.user.username)
                     newRating = user.rating;
             });
-            console.log(this.props.user.username === this.state.op);
             this.createMessage('Your new rating is ' + newRating);
         }).catch(err => {this.createMessage('No rating change since you played yourself.'); console.error(err);});
         clearInterval(this.state.interval);
@@ -184,10 +185,7 @@ class Board extends Component {
 
     newGame() {
         clearInterval(this.state.interval);
-        // let interval = setInterval(this.tick, this.state.initialSpeed);
-        // this.boardRef.current.focus();
         this.setState({currentSpeed: this.state.initialSpeed, score: 0, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
-        // this.boardRef.current.focus();
         this.countDown();
     }
     startNewMpGame() {
@@ -220,7 +218,8 @@ class Board extends Component {
             }
             clearInterval(this.state.interval);
             this.setState({lost: true, paused: false, mpGameOver: mpgo});
-            this.createMessage('Game over! CLick New Game to play again!')
+            const lossMessage = this.props.mode === 'sp' ? 'Game over! CLick "New Game" to play again!' : 'You lost! Sad! Click "Play another game" to play again';
+            this.createMessage(lossMessage);
             this.addToScores();
         }
     }
@@ -393,12 +392,16 @@ class Board extends Component {
         const { board } = this.state;
         const { x, y }  = this.state.piece;
         const { piece } = this.state;
+        let keys = {...this.props.settings};
+        for (let key in keys)
+            if (keys[key] === 'Space')
+                keys[key] = ' ';
         let potentialBlock;
         let potentialPiece;
         if (this.state.lost)
             return;
         if (this.state.paused) {
-            if(key === ' ') {
+            if(key === keys.pause) {
                 return this.pause();
             }
             else {
@@ -406,20 +409,20 @@ class Board extends Component {
             }
         }
         switch (key) {
-            case this.props.settings.left:
+            case keys.left:
                 potentialBlock = getPotentialBlock(LEFT, piece);
                 if (canMove(board, potentialBlock))
                     this.setState({piece: {...this.state.piece, x: x - 1}});
                 break;
-            case this.props.settings.right:
+            case keys.right:
                 potentialBlock = getPotentialBlock(RIGHT, piece);
                 if (canMove(board, potentialBlock))
                     this.setState({piece: {...this.state.piece, x: x + 1}});
                 break;
-            case this.props.settings.hardDrop:
+            case keys.hardDrop:
                 this.hardDrop();
                 break;
-            case this.props.settings.down:
+            case keys.down:
                 potentialBlock = getPotentialBlock(DOWN, piece);
                 if (canMove(board, potentialBlock)) {
                     clearInterval(this.state.interval);
@@ -429,10 +432,10 @@ class Board extends Component {
                 else
                     this.landPiece();
                 break;
-            case this.props.settings.holdPiece:
+            case keys.holdPiece:
                 this.holdPiece();
                 break;
-            case this.props.settings.rotateClockwise:
+            case keys.rotateClockwise:
                 potentialPiece = {...piece};
                 potentialPiece.orientation = piece.orientation === 3 ? 0 : piece.orientation + 1;
                 potentialBlock = getPieceBlocks(potentialPiece);
@@ -453,7 +456,7 @@ class Board extends Component {
                     break;
                 }                
                 break;
-            case this.props.settings.rotateCounterClockwise:
+            case keys.rotateCounterClockwise:
                 potentialPiece = {...piece};
                 potentialPiece.orientation = piece.orientation === 0 ? 3 : piece.orientation - 1;
                 potentialBlock = getPieceBlocks(potentialPiece);
@@ -474,7 +477,7 @@ class Board extends Component {
                     break;
                 }                
                 break;
-            case ' ':
+            case keys.pause:
                 this.pause();
                 break;
             default:
@@ -633,8 +636,8 @@ class Board extends Component {
                     <div className="message-holder" ref={this.messageRef} style={{left: messageOffset, top: -1, width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 12 + 10}}>
                         <ReactCSSTransitionGroup
                             transitionName="message"
-                            transitionEnterTimeout={200}>
-                            transitionLeaveTimeout={0}
+                            transitionEnterTimeout={200}
+                            transitionLeaveTimeout={0}>
                             {this.renderMessages()}
                         </ReactCSSTransitionGroup>
                     </div>
