@@ -5,6 +5,7 @@
     height: 40px;
     background-color: darkblue;
     padding: 4px 30px 4px 30px;
+    z-index: 75;
 }
 .DashboardNav a {
     background-color: white;

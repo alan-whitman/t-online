@@ -12,7 +12,7 @@ class App extends Component {
       isLoggedIn: false,
       user: {},
       authError: '',
-      showMenu: true,
+      showMenu: false,
       settings: {
         left: 'ArrowLeft',
         right: 'ArrowRight',
@@ -32,8 +32,11 @@ class App extends Component {
   }
   componentDidMount() {
     axios.get('/auth/current_user').then(res => {
-      if (res.data.username)
-        this.setState({user: res.data, isLoggedIn: true})
+      console.log(res.data);
+      if (res.data.settings)
+        this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
+      if (res.data.user)
+        this.setState({user: res.data.user, isLoggedIn: true})
     }).catch(err => console.log(err));;
   }
   logout() {
@@ -46,7 +49,10 @@ class App extends Component {
     if (username.trim() === '' || password.trim() === '')
       return this.setState({authError: 'Please enter a username and password'});
     axios.post('/auth/login', {username, password}).then(res => {
-      this.setState({user: res.data, isLoggedIn: true, authError: ''})
+      if (res.data.settings)
+        this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
+      this.setState({user: res.data.user, isLoggedIn: true, authError: ''})
+
     }).catch(err => this.setState({authError: err.response.data}));
   }
   register(username, email, password) {
@@ -74,13 +80,13 @@ class App extends Component {
           logout={this.logout}
           register={this.register}
           authError={this.state.authError}
+          showMenu={this.state.showMenu}
           toggleMenu={this.toggleMenu}
         />
         <Dashboard
           user={this.state.user}
           isLoggedIn={this.state.isLoggedIn}
           showMenu={this.state.showMenu}
-          toggleMenu={this.toggleMenu}
           settings={this.state.settings}
           updateSettings={this.updateSettings}
           key={this.state.isLoggedIn}

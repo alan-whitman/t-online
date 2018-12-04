@@ -8,21 +8,9 @@ module.exports = {
             await db.settings_create_user_settings(newSettings);
             return res.sendStatus(200);
         } else {
-            console.log('user settings found');
+            newSettings.user_id = req.session.user.user_id;
+            await db.settings_update_user_settings(newSettings);
+            return res.sendStatus(200);
         }
     }
 }
-
-
-/*
-
-{ left: 'ArrowLeft',
-  right: 'ArrowRight',
-  down: 'ArrowDown',
-  rotateClockwise: 'x',
-  rotateCounterClockwise: 'z',
-  hardDrop: 'ArrowUp',
-  holdPiece: 'c',
-  pause: 'Space' }
-
-  */

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import DashboardNav from './DashboardNav';
 import Board from './Board';
 import Scores from './Scores';
 import Leaderboard from './Leaderboard';
@@ -7,7 +6,7 @@ import Rankings from './Rankings';
 import Landing from './Landing';
 import Settings from './Settings';
 import { Switch, Route } from 'react-router-dom';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+
 import './Dashboard.css';
 
 
@@ -16,18 +15,6 @@ class Dashboard extends Component {
     render() {
         return (
             <div className="Dashboard">
-                <div className="menu-holder">
-                    <ReactCSSTransitionGroup
-                        transitionName="menu"
-                        transitionEnter={true}
-                        transitionEnterTimeout={200}
-                        transitionLeave={true}
-                        transitionLeaveTimeout={200}>
-                        {this.props.showMenu ?
-                            <DashboardNav />
-                        : null}
-                    </ReactCSSTransitionGroup>
-                </div>
                 <div className="content-area">
                     <Switch>
                         <Route path="/spleaderboard" exact component={Leaderboard} />

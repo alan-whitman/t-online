@@ -4,23 +4,3 @@
 .content-area {
     padding: 10px 30px 0px 30px;
 }
-
-
-.menu-enter {
-    position: relative;
-    top: -40px;
-    width: 100%;
-}
-.menu-enter.menu-enter-active {
-    top: 0px;
-    transition: top 200ms;
-}
-.menu-leave {
-    position: relative;
-    top: 0px;
-    width: 100%;
-}
-.menu-leave.menu-leave-active {
-    top: -40px;
-    transition: top 200ms;
-}

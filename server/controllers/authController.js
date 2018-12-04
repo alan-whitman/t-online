@@ -35,7 +35,12 @@ module.exports = {
                 return res.status(409).send('Incorrect password')
             delete user[0].pw_hash;
             req.session.user = user[0];
-            res.send(req.session.user);
+            let reply = {};
+            reply.user = req.session.user;
+            const settings = await db.settings_get_user_settings(req.session.user.user_id);
+            if (settings[0])
+                reply.settings = settings[0];
+            res.send(reply);
         } catch (err) {
             console.error(err);
             return res.status(500).send('Server error: ' + err)
@@ -54,7 +59,20 @@ module.exports = {
             return res.status(500).send('Server error: ' + err)
         }
     },
-    currentUser(req, res) {
-        res.send(req.session.user);
+    async currentUser(req, res) {
+        try {
+            const db = req.app.get('db');
+            let reply = {};
+            if (req.session.user) {
+                const settings = await db.settings_get_user_settings(req.session.user.user_id);
+                reply.user = req.session.user;
+                if (settings[0])
+                    reply.settings = settings[0];
+            }
+            res.send(reply);
+        } catch(err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
     },
 }
