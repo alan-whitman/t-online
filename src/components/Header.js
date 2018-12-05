@@ -45,9 +45,9 @@ class Header extends Component {
                     :
                         this.state.registering ?
                             <div>
-                                <input name="username" placeholder="Username" value={this.state.username} onChange={e => this.handleInput(e)} /> 
-                                <input name="email" placeholder="Email" value={this.state.email} onChange={e => this.handleInput(e)} />
-                                <input name="password" type="password" placeholder="Password" value={this.state.password} onChange={e => this.handleInput(e)} />
+                                <input name="username" placeholder="Username" onKeyPress={e => {if (e.key === "Enter") this.register()}} value={this.state.username} onChange={e => this.handleInput(e)} /> 
+                                <input name="email" placeholder="Email" onKeyPress={e => {if (e.key === "Enter") this.register()}} value={this.state.email} onChange={e => this.handleInput(e)} />
+                                <input name="password" type="password" onKeyPress={e => {if (e.key === "Enter") this.register()}} placeholder="Password" value={this.state.password} onChange={e => this.handleInput(e)} />
                                 <button className="login-button" onClick={e => this.register()}>Register</button>
                                 <button className="login-button" onClick={e => this.setState({registering: false})}>Cancel</button>
                                 

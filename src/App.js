@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Dashboard from './components/Dashboard'
 import axios from 'axios';
 import { Spring } from 'react-spring';
+import { withRouter } from 'react-router-dom';
 
 class App extends Component {
   constructor() {
@@ -30,6 +31,7 @@ class App extends Component {
     this.register = this.register.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
     this.updateSettings = this.updateSettings.bind(this);
+    this.deleteAccount = this.deleteAccount.bind(this);
   }
   componentDidMount() {
     axios.get('/auth/current_user').then(res => {
@@ -70,6 +72,11 @@ class App extends Component {
   toggleMenu() {
     this.setState({showMenu: !this.state.showMenu});
   }
+  deleteAccount() {
+    axios.delete('/auth/delete_account').then(res => {
+      this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space'}}, () => this.props.history.push('/'));
+    }).catch(err => console.error(err));
+  }
   render() {
     const ptv = this.state.showMenu ? 80 : 40;
     return (
@@ -96,6 +103,7 @@ class App extends Component {
             settings={this.state.settings}
             updateSettings={this.updateSettings}
             key={this.state.isLoggedIn}
+            deleteAccount={this.deleteAccount}
           />
         </div>}
       </Spring>
@@ -103,4 +111,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withRouter(App);

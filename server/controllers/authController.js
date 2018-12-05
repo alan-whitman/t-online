@@ -75,4 +75,15 @@ module.exports = {
             res.status(500).send(err);
         }
     },
+    async deleteAccount(req, res) {
+        try {
+            const db = req.app.get('db');
+            await db.auth_delete_account(req.session.user.user_id);
+            req.session.destroy();
+            res.send('account deleted');
+        } catch (err) {
+            console.error(err);
+            res.status(500).send(err);
+        }
+    }
 }

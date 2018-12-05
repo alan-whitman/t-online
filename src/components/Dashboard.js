@@ -25,7 +25,7 @@ class Dashboard extends Component {
                         <Route path="/profile" render={(props) => <Profile {...props} user={this.props.user} isLoggedIn={this.props.isLoggedIn} />} />
                         <Route path="/scores/:username" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} />} />
                         <Route path="/scores" render={(props) => <Scores {...props} isLoggedIn={this.props.isLoggedIn} user={this.props.user} />} />
-                        <Route path="/settings" render={(props) => <Settings {...props} isLoggedIn={this.props.isLoggedIn} user={this.props.user} settings={this.props.settings} updateSettings={this.props.updateSettings} />} />
+                        <Route path="/settings" render={(props) => <Settings {...props} isLoggedIn={this.props.isLoggedIn} user={this.props.user} settings={this.props.settings} updateSettings={this.props.updateSettings} deleteAccount={this.props.deleteAccount} />} />
                         <Route path="/" component={Landing} />
                     </Switch>
                 </div>

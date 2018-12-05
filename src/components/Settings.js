@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Settings.css';
-
+    
 class Settings extends Component {
     constructor(props) {
         super(props);
@@ -19,6 +19,12 @@ class Settings extends Component {
         }
         this.defaultControls = this.defaultControls.bind(this);
         this.updateSettingsCheck = this.updateSettingsCheck.bind(this);
+        this.deleteAccount = this.deleteAccount.bind(this);
+    }
+    deleteAccount() {
+        const response = prompt('THIS ACTION CANNOT BE REVERSED! ENTER \'DELETE\' (CASE SENSITIVE) TO CONTINUE.');
+        if (response === 'DELETE')
+            this.props.deleteAccount();
     }
     updateInput(e) {
         const { name } = e.target;
@@ -96,9 +102,14 @@ class Settings extends Component {
                     </div>
                     <div></div>
                 </div>
-                <hr />
-                <h3>Delete Account</h3>
-                <p>WARNING: This action is irreversible. Your game history and rank will be permanently deleted.</p>
+                {this.props.isLoggedIn ? 
+                    <div>
+                        <hr />
+                        <h3>Delete Account</h3>
+                        <p style={{marginBottom: 20}}>WARNING: This action is irreversible. Your game history and rank will be permanently deleted.</p>
+                        <button className="ui-button" onClick={this.deleteAccount}>Delete Account</button>
+                    </div>
+                : null}
             </div>
         )
     }
