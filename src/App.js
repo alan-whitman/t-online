@@ -12,7 +12,7 @@ class App extends Component {
       isLoggedIn: false,
       user: {},
       authError: '',
-      showMenu: false,
+      showMenu: true,
       settings: {
         left: 'ArrowLeft',
         right: 'ArrowRight',
@@ -72,7 +72,7 @@ class App extends Component {
   }
   render() {
     return (
-      <div className="App">
+      <div className="App" style={{paddingTop: this.state.showMenu ? 80 : 40}}>
         <Header 
           isLoggedIn={this.state.isLoggedIn}
           user={this.state.user}
