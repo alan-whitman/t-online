@@ -4,6 +4,7 @@ import './App.css';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard'
 import axios from 'axios';
+import { Spring } from 'react-spring';
 
 class App extends Component {
   constructor() {
@@ -32,7 +33,6 @@ class App extends Component {
   }
   componentDidMount() {
     axios.get('/auth/current_user').then(res => {
-      console.log(res.data);
       if (res.data.settings)
         this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
       if (res.data.user)
@@ -71,27 +71,34 @@ class App extends Component {
     this.setState({showMenu: !this.state.showMenu});
   }
   render() {
+    const ptv = this.state.showMenu ? 80 : 40;
     return (
-      <div className="App" style={{paddingTop: this.state.showMenu ? 80 : 40}}>
-        <Header 
-          isLoggedIn={this.state.isLoggedIn}
-          user={this.state.user}
-          login={this.login}
-          logout={this.logout}
-          register={this.register}
-          authError={this.state.authError}
-          showMenu={this.state.showMenu}
-          toggleMenu={this.toggleMenu}
-        />
-        <Dashboard
-          user={this.state.user}
-          isLoggedIn={this.state.isLoggedIn}
-          showMenu={this.state.showMenu}
-          settings={this.state.settings}
-          updateSettings={this.updateSettings}
-          key={this.state.isLoggedIn}
-        />
-      </div>
+      <Spring
+        from={{paddingTop: ptv}}
+        to={{paddingTop: ptv}}
+        config={{friction: 0, clamp: true}}
+      >
+        {props => <div style={props} className="App">
+          <Header 
+            isLoggedIn={this.state.isLoggedIn}
+            user={this.state.user}
+            login={this.login}
+            logout={this.logout}
+            register={this.register}
+            authError={this.state.authError}
+            showMenu={this.state.showMenu}
+            toggleMenu={this.toggleMenu}
+          />
+          <Dashboard
+            user={this.state.user}
+            isLoggedIn={this.state.isLoggedIn}
+            showMenu={this.state.showMenu}
+            settings={this.state.settings}
+            updateSettings={this.updateSettings}
+            key={this.state.isLoggedIn}
+          />
+        </div>}
+      </Spring>
     );
   }
 }
