@@ -44,7 +44,7 @@ class Landing extends Component {
     }
     makeItRain() {
         let { pieces } = this.state;
-        const left = Math.floor(Math.random() * 540) + 40;
+        const left = Math.floor(Math.random() * 540) + 60;
         const rotationDirection = Math.floor(Math.random() * 2) === 0 ? 'left' : 'right';
         const blockType = convertBoardCodeToShape(Math.floor(Math.random() * 7) + 1).toLowerCase();
         pieces.push(            
@@ -74,12 +74,3 @@ class Landing extends Component {
 }
 
 export default Landing;
-
-
-/* <h1 style={{fontWeight: 900, marginBottom: 10, fontSize: '18px'}}>Welcome to T!</h1>
-<p style={{fontWeight: 900, marginBottom: 10}}>Default controls:</p>
-<p>Arrow keys: move piece<br />
-Arrow key up: hard drop current piece<br />
-z: rotate counterclockwise<br />
-x: rotate clockwise<br />
-c: hold current piece</p> */

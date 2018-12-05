@@ -8,11 +8,7 @@ import Message from './Message';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard, addGarbage } from '../controllers/board_controller';
 import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
 
-let socket = {
-    disconnect () {
-
-    }
-};
+let socket = {disconnect () {}};
 
 const BLOCK_SCALE = 21;
 const LEFT = 'LEFT';
@@ -20,7 +16,6 @@ const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
 const INITIAL_X = 5;
 const INITIAL_Y = 21;
-
 
 class Board extends Component {
     constructor(props) {
@@ -114,6 +109,7 @@ class Board extends Component {
     }
     componentWillUnmount() {
         clearInterval(this.state.interval);
+        this.state.countDownTimers.forEach(interval => clearInterval(interval));
         if (this.props.mode === 'mp')
             socket.disconnect();
     }
