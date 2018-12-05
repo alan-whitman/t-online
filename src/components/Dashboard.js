@@ -6,6 +6,7 @@ import Rankings from './Rankings';
 import Landing from './Landing';
 import Settings from './Settings';
 import Profile from './Profile';
+import TestMail from './TestMail';
 import { Switch, Route } from 'react-router-dom';
 
 import './Dashboard.css';
@@ -18,6 +19,7 @@ class Dashboard extends Component {
             <div className="Dashboard">
                 <div className="content-area">
                     <Switch>
+                        <Route path="/testmail" component={TestMail} />
                         <Route path="/spleaderboard" exact component={Leaderboard} />
                         <Route path="/mpleaderboard" component={Rankings} />
                         <Route path="/sp" exact render={(props) => <Board {...props} user={this.props.user} isLoggedIn={this.props.isLoggedIn} settings={this.props.settings} mode={'sp'} key={'sp' + this.props.isLoggedIn} />} />

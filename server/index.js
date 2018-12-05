@@ -5,6 +5,7 @@ const massive = require('massive');
 const bodyParser = require('body-parser');
 const ac = require('./controllers/authController');
 const sc = require('./controllers/settingsController');
+// const mc = require('./controllers/mailController');
 const sp = require('./controllers/spController');
 const mp = require('./controllers/mpController');
 require('dotenv').config();
@@ -57,6 +58,12 @@ app.get('/mp/rankings', mp.getRankings);
 */
 
 app.post('/settings/update', sc.updateSettings);
+
+/*
+    Mail endpoints
+*/
+
+// app.post('/mail/registration', mc.registration);
 
 /*
     Express Listen

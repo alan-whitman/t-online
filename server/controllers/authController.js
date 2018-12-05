@@ -1,4 +1,26 @@
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+const { MAIL_USER: username, MAIL_PW: password } = process.env;
+
+const nmconfig = {
+    host: 'smtp.gmail.com',
+    auth: {
+        user: username,
+        pass: password
+    }
+}
+
+// const transporter = nodemailer.createTransport(nmconfig);
+
+// transporter.verify((error, success) => {
+//     if (error) {
+//         console.error(error);
+//     } else {
+//         console.log('Mail server connected');
+//     }
+// });
 
 module.exports = {
     async register(req, res) {
@@ -15,7 +37,8 @@ module.exports = {
             if (checkReply[0])
                 return res.status(409).send('Username already exists');
             const pw_hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-            const user = await db.auth_register({username, email, pw_hash});
+            const verificationString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            const user = await db.auth_register({username, email, pw_hash, verificationString});
             delete user[0].pw_hash;
             req.session.user = user[0];
             res.status(200).send(req.session.user);
