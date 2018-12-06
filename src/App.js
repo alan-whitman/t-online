@@ -77,6 +77,14 @@ class App extends Component {
       this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space'}}, () => this.props.history.push('/'));
     }).catch(err => console.error(err));
   }
+  resendVerification() {
+    axios.get('/auth/resend_verification').then(res => {
+      
+    }).catch(err => console.error(err));
+  }
+  updateEmail(newEmail) {
+    console.log(newEmail);
+  }
   render() {
     const ptv = this.state.showMenu ? 80 : 40;
     return (
@@ -104,6 +112,8 @@ class App extends Component {
             updateSettings={this.updateSettings}
             key={this.state.isLoggedIn}
             deleteAccount={this.deleteAccount}
+            resendVerification={this.resendVerification}
+            updateEmail={this.updateEmail}
           />
         </div>}
       </Spring>

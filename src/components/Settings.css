@@ -7,13 +7,13 @@
 .user-settings {
     display: flex;
     flex-wrap: wrap;
-    width: 400px;
+    width: 700px;
 }
-.user-settings>div>input {
+.control-fields>div>input {
     border: 2px solid lightgray;
     outline: 0;
 }
-.user-settings>div>input:focus {
+.control-fields>div>input:focus {
     border: 2px solid darkblue;
     outline: 0;
 }
@@ -33,6 +33,6 @@
 .user-settings div:nth-last-child(2) {
     border-bottom: none;
 }
-.user-settings div>input {
+.control-fields div>input {
     width: 90px;
 }

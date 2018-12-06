@@ -16,7 +16,8 @@ class Verify extends Component {
             return this.setState({verifying: false, errMsg: 'You appear to have reached this page on accident, or are trying to do something weird, you weirdo.'});
         const verificationCode = queries.vc;
         axios.post('/auth/verify', {verificationCode}).then(res => {
-            console.log(res.data);
+            if (res.data === 'Email address already verified')
+                return this.setState({verifying: false, errMsg: 'Your email address has already been verified. Thanks for making sure, though.'})
             this.setState({verifying: false});
         }).catch(err => {this.setState({verifying: false, errMsg: err.response.data})});
     }

@@ -61,7 +61,7 @@ module.exports = {
             const user = await db.auth_register({username, email, pw_hash, verificationString});
             delete user[0].pw_hash;
             req.session.user = user[0];
-            res.status(200).send(req.session.user);
+            return res.status(200).send(req.session.user);
         } catch (err) {
             console.error(err);
             return res.status(500).send('Server error: ' + err)
@@ -73,6 +73,8 @@ module.exports = {
         const verificationResult = await db.auth_verify_email(verificationCode);
         if (!verificationResult[0])
             return res.status(409).send('Invalid verification code.');
+        if (verificationResult[0].verified)
+            return res.status(200).send('Email address already verified');
         return res.sendStatus(200);
     },
     async login(req, res) {
@@ -91,7 +93,7 @@ module.exports = {
             const settings = await db.settings_get_user_settings(req.session.user.user_id);
             if (settings[0])
                 reply.settings = settings[0];
-            res.send(reply);
+            return res.send(reply);
         } catch (err) {
             console.error(err);
             return res.status(500).send('Server error: ' + err)
@@ -101,9 +103,9 @@ module.exports = {
         try {
             if (req.session.user) {
                 req.session.destroy();
-                res.send('Successfully logged out.');
+                return res.send('Successfully logged out.');
             } else {
-                res.status(409).send('No user currently logged in')
+                return res.status(409).send('No user currently logged in')
             }
         } catch (err) {
             console.error(err);
@@ -120,10 +122,10 @@ module.exports = {
                 if (settings[0])
                     reply.settings = settings[0];
             }
-            res.send(reply);
+            return res.send(reply);
         } catch(err) {
             console.log(err);
-            res.status(500).send(err);
+            return res.status(500).send(err);
         }
     },
     async deleteAccount(req, res) {
@@ -131,10 +133,41 @@ module.exports = {
             const db = req.app.get('db');
             await db.auth_delete_account(req.session.user.user_id);
             req.session.destroy();
-            res.send('account deleted');
+            return res.send('account deleted');
         } catch (err) {
             console.error(err);
-            res.status(500).send(err);
+            return res.status(500).send(err);
         }
+    },
+    async resendVerification(req, res) {
+        try {
+            const { email, verification_code: verificationString } = req.session.user;
+            const message = {
+                from: 'play.t.online@gmail.com',
+                to: email,
+                subject: 'Welcome to T Online!',
+                html: `<h2 style="font-size: 24px; color: darkblue">Welcome to T Online!</h2>
+                    <p>Thank you for registering for T Online! Please verify your email address by clicking the link below. Verification allows you to recover your account in the event that your password is lost or forgotten</p><br />
+                    <a style="background-color: darkblue; color: white; text-decoration: none; font-size: 16px; padding: 15px 15px; border-radius: 3px" href="${process.env.ACTIVE_PATH}#/verify?vc=${verificationString}">Click Here To Verify</a>
+                    <br /><br />
+                    <p>Thanks!</p>
+                    <p>The T Online Team</p>`
+            }
+            transporter.sendMail(message, (err, info) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(409).send('Problem sending email');
+                }
+
+            });
+            res.sendStatus(200);
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send(err);
+        }
+
+    },
+    async updateEmail() {
+
     }
 }
