@@ -12,15 +12,15 @@ const nmconfig = {
     }
 }
 
-// const transporter = nodemailer.createTransport(nmconfig);
+const transporter = nodemailer.createTransport(nmconfig);
 
-// transporter.verify((error, success) => {
-//     if (error) {
-//         console.error(error);
-//     } else {
-//         console.log('Mail server connected');
-//     }
-// });
+transporter.verify((error, success) => {
+    if (error) {
+        console.error(error);
+    } else {
+        console.log('Mail server connected');
+    }
+});
 
 module.exports = {
     async register(req, res) {
@@ -38,6 +38,26 @@ module.exports = {
                 return res.status(409).send('Username already exists');
             const pw_hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
             const verificationString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+            const message = {
+                from: 'play.t.online@gmail.com',
+                to: email,
+                subject: 'Welcome to T Online!',
+                html: `<h2 style="font-size: 24px; color: darkblue">Welcome to T Online!</h2>
+                    <p>Thank you for registering for T Online! Please verify your email address by clicking the link below. Verification allows you to recover your account in the event that your password is lost or forgotten</p><br />
+                    <a style="background-color: darkblue; color: white; text-decoration: none; font-size: 16px; padding: 15px 15px; border-radius: 3px" href="http://localhost:3000/#/verify?vc=${verificationString}">Click Here To Verify</a>
+                    <br /><br />
+                    <p>Thanks!</p>
+                    <p>The T Online Team</p>`
+            }
+            transporter.sendMail(message, (err, info) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(409).send('Problem sending email');
+                }
+
+            });
+
             const user = await db.auth_register({username, email, pw_hash, verificationString});
             delete user[0].pw_hash;
             req.session.user = user[0];
@@ -46,6 +66,14 @@ module.exports = {
             console.error(err);
             return res.status(500).send('Server error: ' + err)
         }
+    },
+    async verify(req, res) {
+        const db = req.app.get('db');
+        const { verificationCode } = req.body;
+        const verificationResult = await db.auth_verify_email(verificationCode);
+        if (!verificationResult[0])
+            return res.status(409).send('Invalid verification code.');
+        return res.sendStatus(200);
     },
     async login(req, res) {
         try {

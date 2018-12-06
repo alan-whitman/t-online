@@ -61,7 +61,7 @@ class App extends Component {
     if (username.trim() === '' || password.trim() === '' || email.trim() === '')
       return this.setState({authError: 'Registration requires a username, password, and email address'});
     axios.post('/auth/register', {username, email, password}).then(res => {
-      this.setState({user: res.data, isLoggedIn: true, authError: ''});
+      this.setState({user: res.data, isLoggedIn: true, authError: ''}, this.props.history.push('/register'));
     }).catch(err => this.setState({authError: err.response.data}));
   }
   updateSettings(newSettings) {

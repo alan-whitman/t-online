@@ -384,7 +384,9 @@ class Board extends Component {
     }
 
     // cry deeply
-    handleInput(key) {
+    handleInput(e) {
+        e.preventDefault();
+        const { key } = e;
         const { board } = this.state;
         const { x, y }  = this.state.piece;
         const { piece } = this.state;
@@ -622,7 +624,7 @@ class Board extends Component {
                     : null}
                 </div>
                 
-                <div className="board" tabIndex="0" style={{width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 20 + 1}} ref={this.boardRef} onKeyDown={e => this.handleInput(e.key)}>
+                <div className="board" tabIndex="0" style={{width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 20 + 1}} ref={this.boardRef} onKeyDown={e => this.handleInput(e)}>
                     <div className="holder" style={{width: BLOCK_SCALE * 4 + 10, height: BLOCK_SCALE * 6, left: BLOCK_SCALE * 12 + 10, top: -1}}>
                         Next
                     </div>
