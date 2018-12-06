@@ -3,8 +3,8 @@ import axios from 'axios';
 import queryString from 'query-string';
 
 class Verify extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             verifying: true,
             errMsg: ''
@@ -16,13 +16,21 @@ class Verify extends Component {
             return this.setState({verifying: false, errMsg: 'You appear to have reached this page on accident, or are trying to do something weird, you weirdo.'});
         const verificationCode = queries.vc;
         axios.post('/auth/verify', {verificationCode}).then(res => {
-            if (res.data === 'Email address already verified')
+            if (res.data === 'Email address already verified') {
+                this.props.updateVerificationStatus()
                 return this.setState({verifying: false, errMsg: 'Your email address has already been verified. Thanks for making sure, though.'})
+            }
+            this.props.updateVerificationStatus();
             this.setState({verifying: false});
         }).catch(err => {this.setState({verifying: false, errMsg: err.response.data})});
     }
     componentDidMount() {
-        this.verify();
+        if (!this.props.loading)
+            this.verify();
+    }
+    componentDidUpdate(prevProps) {
+        if (prevProps.loading !== this.props.loading)
+            this.verify();
     }
     render() {
         return (

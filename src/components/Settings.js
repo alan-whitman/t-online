@@ -60,7 +60,6 @@ class Settings extends Component {
                 if (this.state.controls[setting] === this.state.controls[otherSetting])
                     if (setting !== otherSetting)
                         settingCheck = false;
-                    
             }
         }
         if (!settingCheck)
@@ -115,15 +114,14 @@ class Settings extends Component {
                     <div><input name="holdPiece" value={this.state.controls.holdPiece} onKeyDown={e => this.updateControls(e)} readOnly /></div>
                     <div>Pause (singleplayer only):</div>
                     <div><input name="pause" value={this.state.controls.pause} onKeyDown={e => this.updateControls(e)} readOnly /></div>
-                    <div>
-                        <button className="ui-button" onClick={this.updateSettingsCheck}>Save Controls</button> <button className="ui-button" onClick={this.defaultControls}>Restore Defaults</button><br /><br />
-                        {this.state.controlMsg ? 
-                            <p>{this.state.controlMsg}</p>
-                        :
-                            <p><br /></p>
-                        }
-                    </div>
-                    <div></div>
+                </div>
+                <div>
+                    <button className="ui-button" onClick={this.updateSettingsCheck}>Save Controls</button> <button className="ui-button" onClick={this.defaultControls}>Restore Defaults</button><br /><br />
+                    {this.state.controlMsg ? 
+                        <p>{this.state.controlMsg}</p>
+                    :
+                        <p><br /></p>
+                    }
                 </div>
                 {this.props.isLoggedIn ? 
                     <div>
@@ -134,15 +132,14 @@ class Settings extends Component {
                             <div>{this.props.user.username}</div>
                             <div>Email Address ({this.props.user.verified ? 'Verified' : 'Unverified'})</div>
                             <div><input name="email" value={this.state.email} onChange={e => this.updateFields(e)} style={{width: 200}} /></div>
-                            <div>
-                                <button className="ui-button" onClick={this.updateDetailsCheck}>Update Email Address</button> {!this.props.user.verified ? <button className="ui-button" onClick={this.resendVerification}>Resend Verification Email</button> : null}<br /><br />
-                                {this.state.detailsMsg ? 
-                                    <p>{this.state.detailsMsg}</p>
-                                :
-                                    <p><br /></p>
-                                }
-                            </div>
-                            <div></div>
+                        </div>
+                        <div>
+                            <button className="ui-button" onClick={this.updateDetailsCheck}>Update Email Address</button> {!this.props.user.verified ? <button className="ui-button" onClick={this.resendVerification}>Resend Verification Email</button> : null}<br /><br />
+                            {this.state.detailsMsg ? 
+                                <p>{this.state.detailsMsg}</p>
+                            :
+                                <p><br /></p>
+                            }
                         </div>
                         <div>
                             <hr />

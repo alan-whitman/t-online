@@ -8,117 +8,125 @@ import { Spring } from 'react-spring';
 import { withRouter } from 'react-router-dom';
 
 class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      isLoggedIn: false,
-      user: {},
-      authError: '',
-      showMenu: true,
-      settings: {
-        left: 'ArrowLeft',
-        right: 'ArrowRight',
-        down: 'ArrowDown',
-        rotateClockwise: 'x',
-        rotateCounterClockwise: 'z',
-        hardDrop: 'ArrowUp',
-        holdPiece: 'c',
-        pause: 'Space'
-      }
+    constructor() {
+        super();
+        this.state = {
+            isLoggedIn: false,
+            user: {},
+            authError: '',
+            showMenu: true,
+            loading: true,
+            settings: {
+                left: 'ArrowLeft',
+                right: 'ArrowRight',
+                down: 'ArrowDown',
+                rotateClockwise: 'x',
+                rotateCounterClockwise: 'z',
+                hardDrop: 'ArrowUp',
+                holdPiece: 'c',
+                pause: 'Space'
+            }
+        }
+        this.login = this.login.bind(this);
+        this.logout = this.logout.bind(this);
+        this.register = this.register.bind(this);
+        this.toggleMenu = this.toggleMenu.bind(this);
+        this.updateSettings = this.updateSettings.bind(this);
+        this.deleteAccount = this.deleteAccount.bind(this);
+        this.updateVerificationStatus = this.updateVerificationStatus.bind(this);
     }
-    this.login = this.login.bind(this);
-    this.logout = this.logout.bind(this);
-    this.register = this.register.bind(this);
-    this.toggleMenu = this.toggleMenu.bind(this);
-    this.updateSettings = this.updateSettings.bind(this);
-    this.deleteAccount = this.deleteAccount.bind(this);
-  }
-  componentDidMount() {
-    axios.get('/auth/current_user').then(res => {
-      if (res.data.settings)
-        this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
-      if (res.data.user)
-        this.setState({user: res.data.user, isLoggedIn: true})
-    }).catch(err => console.log(err));;
-  }
-  logout() {
-    axios.get('/auth/logout').then(res => {
-      this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space'}});
-    }).catch(err => console.log(err));
-    
-  }
-  login(username, password) {
-    if (username.trim() === '' || password.trim() === '')
-      return this.setState({authError: 'Please enter a username and password'});
-    axios.post('/auth/login', {username, password}).then(res => {
-      if (res.data.settings)
-        this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
-      this.setState({user: res.data.user, isLoggedIn: true, authError: ''})
+    componentDidMount() {
+        axios.get('/auth/current_user').then(res => {
+            if (res.data.settings)
+                this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
+            if (res.data.user)
+                this.setState({user: res.data.user, isLoggedIn: true, loading: false})
+        }).catch(err => {console.log(err); this.setState({loading: false})});
+    }
+    logout() {
+        axios.get('/auth/logout').then(res => {
+            this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space'}});
+        }).catch(err => console.log(err));
+        
+    }
+    login(username, password) {
+        if (username.trim() === '' || password.trim() === '')
+            return this.setState({authError: 'Please enter a username and password'});
+        axios.post('/auth/login', {username, password}).then(res => {
+            if (res.data.settings)
+                this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
+            this.setState({user: res.data.user, isLoggedIn: true, authError: ''})
 
-    }).catch(err => this.setState({authError: err.response.data}));
-  }
-  register(username, email, password) {
-    if (username.trim() === '' || password.trim() === '' || email.trim() === '')
-      return this.setState({authError: 'Registration requires a username, password, and email address'});
-    axios.post('/auth/register', {username, email, password}).then(res => {
-      this.setState({user: res.data, isLoggedIn: true, authError: ''}, this.props.history.push('/register'));
-    }).catch(err => this.setState({authError: err.response.data}));
-  }
-  updateSettings(newSettings) {
-      this.setState({settings: newSettings});
-      if (this.state.isLoggedIn)
-        axios.post('/settings/update', newSettings).catch(err => console.error(err));
-  }
-  toggleMenu() {
-    this.setState({showMenu: !this.state.showMenu});
-  }
-  deleteAccount() {
-    axios.delete('/auth/delete_account').then(res => {
-      this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space'}}, () => this.props.history.push('/'));
-    }).catch(err => console.error(err));
-  }
-  resendVerification() {
-    axios.get('/auth/resend_verification').then(res => {
-      
-    }).catch(err => console.error(err));
-  }
-  updateEmail(newEmail) {
-    console.log(newEmail);
-  }
-  render() {
-    const ptv = this.state.showMenu ? 80 : 40;
-    return (
-      <Spring
-        from={{paddingTop: ptv}}
-        to={{paddingTop: ptv}}
-        config={{friction: 0, clamp: true}}
-      >
-        {props => <div style={props} className="App">
-          <Header 
-            isLoggedIn={this.state.isLoggedIn}
-            user={this.state.user}
-            login={this.login}
-            logout={this.logout}
-            register={this.register}
-            authError={this.state.authError}
-            showMenu={this.state.showMenu}
-            toggleMenu={this.toggleMenu}
-          />
-          <Dashboard
-            user={this.state.user}
-            isLoggedIn={this.state.isLoggedIn}
-            showMenu={this.state.showMenu}
-            settings={this.state.settings}
-            updateSettings={this.updateSettings}
-            key={this.state.isLoggedIn}
-            deleteAccount={this.deleteAccount}
-            resendVerification={this.resendVerification}
-            updateEmail={this.updateEmail}
-          />
-        </div>}
-      </Spring>
-    );
-  }
+        }).catch(err => this.setState({authError: err.response.data}));
+    }
+    register(username, email, password) {
+        if (username.trim() === '' || password.trim() === '' || email.trim() === '')
+            return this.setState({authError: 'Registration requires a username, password, and email address'});
+        axios.post('/auth/register', {username, email, password}).then(res => {
+            this.setState({user: res.data, isLoggedIn: true, authError: ''}, this.props.history.push('/register'));
+        }).catch(err => this.setState({authError: err.response.data}));
+    }
+    updateSettings(newSettings) {
+            this.setState({settings: newSettings});
+            if (this.state.isLoggedIn)
+                axios.post('/settings/update', newSettings).catch(err => console.error(err));
+    }
+    toggleMenu() {
+        this.setState({showMenu: !this.state.showMenu});
+    }
+    deleteAccount() {
+        axios.delete('/auth/delete_account').then(res => {
+            this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space'}}, () => this.props.history.push('/'));
+        }).catch(err => console.error(err));
+    }
+    resendVerification() {
+        axios.get('/auth/resend_verification').catch(err => console.error(err));
+    }
+    updateEmail(newEmail) {
+        axios.put('/auth/update_email', {newEmail}).then(res => {
+
+        }).catch(err => console.error(err));
+    }
+    updateVerificationStatus() {
+        if (this.state.isLoggedIn)
+            return this.setState({user: {...this.state.user, verified: true}});
+    }
+    render() {
+        const ptv = this.state.showMenu ? 80 : 40;
+        return (
+            <Spring
+                from={{paddingTop: ptv}}
+                to={{paddingTop: ptv}}
+                config={{friction: 0, clamp: true}}
+            >
+                {props => <div style={props} className="App">
+                    <Header 
+                        isLoggedIn={this.state.isLoggedIn}
+                        user={this.state.user}
+                        login={this.login}
+                        logout={this.logout}
+                        register={this.register}
+                        authError={this.state.authError}
+                        showMenu={this.state.showMenu}
+                        toggleMenu={this.toggleMenu}
+                    />
+                    <Dashboard
+                        user={this.state.user}
+                        isLoggedIn={this.state.isLoggedIn}
+                        showMenu={this.state.showMenu}
+                        settings={this.state.settings}
+                        updateSettings={this.updateSettings}
+                        key={this.state.isLoggedIn}
+                        deleteAccount={this.deleteAccount}
+                        resendVerification={this.resendVerification}
+                        updateEmail={this.updateEmail}
+                        loading={this.state.loading}
+                        updateVerificationStatus={this.updateVerificationStatus}
+                    />
+                </div>}
+            </Spring>
+        );
+    }
 }
 
 export default withRouter(App);

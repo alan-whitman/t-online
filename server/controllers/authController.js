@@ -70,11 +70,13 @@ module.exports = {
     async verify(req, res) {
         const db = req.app.get('db');
         const { verificationCode } = req.body;
-        const verificationResult = await db.auth_verify_email(verificationCode);
+        let verificationResult = await db.auth_check_verification(verificationCode);
+        if (verificationResult[0])
+            if (verificationResult[0].verified)
+                return res.status(200).send('Email address already verified');
+        verificationResult = await db.auth_verify_email(verificationCode);
         if (!verificationResult[0])
             return res.status(409).send('Invalid verification code.');
-        if (verificationResult[0].verified)
-            return res.status(200).send('Email address already verified');
         return res.sendStatus(200);
     },
     async login(req, res) {

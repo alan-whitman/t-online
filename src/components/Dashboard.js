@@ -39,7 +39,7 @@ class Dashboard extends Component {
                             />} 
                         />
                         <Route path="/register" component={Register} />
-                        <Route path="/verify" component={Verify} />
+                        <Route path="/verify" render={(props) => <Verify {...props} loading={this.props.loading} updateVerificationStatus={this.props.updateVerificationStatus} /> } />
                         <Route path="/" component={Landing} />
                     </Switch>
                 </div>
