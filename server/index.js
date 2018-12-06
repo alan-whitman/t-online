@@ -1,4 +1,5 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const io = require('socket.io')();
 const session = require('express-session');
 const massive = require('massive');
@@ -26,6 +27,8 @@ app.use(session({
         maxAge: 99999999
     }
 }));
+
+app.use(express.static(`${__dirname}/../build`));
 
 /*
     Auth endpoints

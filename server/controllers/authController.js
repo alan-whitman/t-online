@@ -45,7 +45,7 @@ module.exports = {
                 subject: 'Welcome to T Online!',
                 html: `<h2 style="font-size: 24px; color: darkblue">Welcome to T Online!</h2>
                     <p>Thank you for registering for T Online! Please verify your email address by clicking the link below. Verification allows you to recover your account in the event that your password is lost or forgotten</p><br />
-                    <a style="background-color: darkblue; color: white; text-decoration: none; font-size: 16px; padding: 15px 15px; border-radius: 3px" href="http://localhost:3000/#/verify?vc=${verificationString}">Click Here To Verify</a>
+                    <a style="background-color: darkblue; color: white; text-decoration: none; font-size: 16px; padding: 15px 15px; border-radius: 3px" href="${process.env.ACTIVE_PATH}#/verify?vc=${verificationString}">Click Here To Verify</a>
                     <br /><br />
                     <p>Thanks!</p>
                     <p>The T Online Team</p>`
