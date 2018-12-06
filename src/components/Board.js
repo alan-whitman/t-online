@@ -31,6 +31,7 @@ class Board extends Component {
             lost: true,
             swapped: false,
             mpGameOver: false,
+            countingDown: false,
             heldPiece: '',
             initialSpeed,
             currentSpeed: initialSpeed,
@@ -153,11 +154,12 @@ class Board extends Component {
         countDownTimers.push(setTimeout(() => this.createMessage('1'), 3000));
         countDownTimers.push(setTimeout(() => this.createMessage('GO!'), 4000));
         countDownTimers.push(setTimeout(this.startGame, 4000));
-        this.setState({countDownTimers});
+        this.setState({countDownTimers, countingDown: true});
     }
     startGame() {
+        clearInterval(this.state.interval);
         let interval = setInterval(this.tick, this.state.initialSpeed);
-        this.setState({interval, lost: false});
+        this.setState({interval, lost: false, countingDown: false, paused: false});
         if (this.boardRef.current)
             this.boardRef.current.focus();
     }
@@ -180,8 +182,11 @@ class Board extends Component {
     }
 
     newGame() {
+        if (this.state.countingDown)
+            return;
         clearInterval(this.state.interval);
-        this.setState({currentSpeed: this.state.initialSpeed, score: 0, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', lost: false, paused: false}, this.newPiece);
+        this.setState({currentSpeed: this.state.initialSpeed, lines: 0, level: 1, score: 0, board: createBoard(), shapeOrder: shuffleShapes(), currentShape: 0, heldPiece: '', paused: false}, this.newPiece);
+        this.boardRef.current.focus();
         this.countDown();
     }
     startNewMpGame() {
@@ -385,6 +390,8 @@ class Board extends Component {
 
     // cry deeply
     handleInput(e) {
+        if (this.state.lost || this.state.countingDown)
+            return;
         e.preventDefault();
         const { key } = e;
         const { board } = this.state;
@@ -396,8 +403,6 @@ class Board extends Component {
                 keys[key] = ' ';
         let potentialBlock;
         let potentialPiece;
-        if (this.state.lost)
-            return;
         if (this.state.paused) {
             if(key === keys.pause) {
                 return this.pause();
@@ -604,6 +609,7 @@ class Board extends Component {
     }
 
     render() {
+        // console.log(this.state.lost);
         const messageOffset = this.props.mode === 'sp' ? BLOCK_SCALE * 15 + 50 : BLOCK_SCALE * 28 + 50; 
         return (
             <div className="Board">
