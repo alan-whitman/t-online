@@ -8,6 +8,7 @@ import Settings from './Settings';
 import Profile from './Profile';
 import Register from './Register';
 import Verify from './Verify';
+import PasswordChange from './PasswordChange';
 import { Switch, Route } from 'react-router-dom';
 
 import './Dashboard.css';
@@ -36,9 +37,12 @@ class Dashboard extends Component {
                                 deleteAccount={this.props.deleteAccount} 
                                 resendVerification={this.props.resendVerification} 
                                 updateEmail={this.props.updateEmail} 
+                                settingsMsg={this.props.settingsMsg}
+                                logout={this.props.logout}
                             />} 
                         />
                         <Route path="/register" component={Register} />
+                        <Route path="/passwordchange" component={PasswordChange} />
                         <Route path="/verify" render={(props) => <Verify {...props} loading={this.props.loading} updateVerificationStatus={this.props.updateVerificationStatus} /> } />
                         <Route path="/" component={Landing} />
                     </Switch>

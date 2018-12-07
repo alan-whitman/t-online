@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './Settings.css';
+import axios from 'axios';
     
 class Settings extends Component {
     constructor(props) {
@@ -17,6 +18,9 @@ class Settings extends Component {
             },
             controlMsg: '',
             detailsMsg: '',
+            passwordMsg: '',
+            newPassword: '',
+            newPasswordConfirm: '',
             email: this.props.user.email
         }
         this.defaultControls = this.defaultControls.bind(this);
@@ -24,6 +28,7 @@ class Settings extends Component {
         this.deleteAccount = this.deleteAccount.bind(this);
         this.updateDetailsCheck = this.updateDetailsCheck.bind(this);
         this.resendVerification = this.resendVerification.bind(this);
+        this.updatePasswordCheck = this.updatePasswordCheck.bind(this);
     }
     deleteAccount() {
         const response = prompt('THIS ACTION CANNOT BE REVERSED! ENTER \'DELETE\' (CASE SENSITIVE) TO CONTINUE.');
@@ -70,14 +75,13 @@ class Settings extends Component {
         }
     }
     updateDetailsCheck() {
-        if (!this.state.email)
+        if (!this.state.email.trim())
             return this.setState({detailsMsg: 'Zero length strings aren\'t email addresses.'});
         else if (this.props.user.email === this.state.email) {
-            return this.setState({detailsMsg: 'That\'s not a new email address'});
+            return this.setState({detailsMsg: 'That\'s not a new email address.'});
         }
         else {
             this.props.updateEmail(this.state.email);
-            return this.setState({detailsMsg: 'A verification email has been sent to the updated address.'});
         }
     }
     resendVerification() {
@@ -87,6 +91,21 @@ class Settings extends Component {
     updateFields(e) {
         const { name, value } = e.target;
         this.setState({[name]: value});
+    }
+    updatePasswordCheck() {
+        if (this.state.newPassword.trim() === '')
+            return this.setState({passwordMsg: 'Your new password cannot be a zero length string.'})
+        if (this.state.newPassword !== this.state.newPasswordConfirm)
+            return this.setState({passwordMsg: 'Your new password must be the same in both fields.'});
+        const { newPassword } = this.state;
+        axios.put('/auth/update_password', {newPassword}).then(res => {
+            this.props.logout();
+            this.props.history.push('/passwordchange');
+        }).catch(err => this.setState({passwordMsg: err.response.data}));
+    }
+    componentDidUpdate(prevProps) {
+        if (prevProps.settingsMsg !== this.props.settingsMsg)
+            this.setState({detailsMsg: this.props.settingsMsg});
     }
     render() {
         return (
@@ -131,7 +150,7 @@ class Settings extends Component {
                             <div>Username</div>
                             <div>{this.props.user.username}</div>
                             <div>Email Address ({this.props.user.verified ? 'Verified' : 'Unverified'})</div>
-                            <div><input name="email" value={this.state.email} onChange={e => this.updateFields(e)} style={{width: 200}} /></div>
+                            <div><input name="email" value={this.state.email} onChange={e => this.updateFields(e)} className="field" /></div>
                         </div>
                         <div>
                             <button className="ui-button" onClick={this.updateDetailsCheck}>Update Email Address</button> {!this.props.user.verified ? <button className="ui-button" onClick={this.resendVerification}>Resend Verification Email</button> : null}<br /><br />
@@ -140,6 +159,24 @@ class Settings extends Component {
                             :
                                 <p><br /></p>
                             }
+                            <p><br />Note: Emails are sent from play.t.online@gmail.com. If you are having trouble receiving emails, please whitelist that address.</p>
+                        </div>
+                        <hr />
+                        <h3>Change Password</h3>
+                        <div className="user-settings">
+                            <div>New Password</div>
+                            <div><input type="password" name="newPassword" value={this.state.newPassword} onChange={e => this.updateFields(e)} className="field" /></div>
+                            <div>Confirm New Password</div>
+                            <div><input type="password" name="newPasswordConfirm" value={this.state.newPasswordConfirm} onChange={e => this.updateFields(e)} className="field" /></div>
+                        </div>
+                        <div>
+                            <button className="ui-button" onClick={this.updatePasswordCheck}>Change Password</button><br /><br />
+                            {this.state.passwordMsg ? 
+                                <p>{this.state.passwordMsg}</p>
+                            :
+                                <p><br /></p>
+                            }
+                            <p><br />Note: Changing your password will force a logout.</p>
                         </div>
                         <div>
                             <hr />

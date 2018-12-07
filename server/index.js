@@ -40,8 +40,10 @@ app.post('/auth/verify', ac.verify);
 app.get('/auth/current_user', ac.currentUser);
 app.get('/auth/logout', ac.logout);
 app.get('/auth/resend_verification', ac.resendVerification);
-app.post('/auth/update_email', ac.updateEmail);
+app.put('/auth/update_email', ac.updateEmail);
+app.put('/auth/update_password', ac.updatePassword)
 app.delete('/auth/delete_account', ac.deleteAccount)
+
 
 /*
     SP game endpoints

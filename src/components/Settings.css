@@ -37,3 +37,6 @@
 .control-fields div>input {
     width: 90px;
 }
+.field {
+    width: 200px;
+}

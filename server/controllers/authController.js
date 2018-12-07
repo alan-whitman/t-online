@@ -77,6 +77,8 @@ module.exports = {
         verificationResult = await db.auth_verify_email(verificationCode);
         if (!verificationResult[0])
             return res.status(409).send('Invalid verification code.');
+        delete verificationResult[0].pw_hash;
+        req.session.user = verificationResult[0];
         return res.sendStatus(200);
     },
     async login(req, res) {
@@ -176,12 +178,11 @@ module.exports = {
             let checkReply = await db.auth_get_user_by_email(newEmail);
             if (checkReply[0])
                 return res.status(409).send('Email address already in use');
-
-            const updatedRecord = await db.auth_update_email([newEmail, req.session.user.user_id]);
             const verificationString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            const updatedRecord = await db.auth_update_email([newEmail, req.session.user.user_id, verificationString]);
             const message = {
                 from: 'play.t.online@gmail.com',
-                to: email,
+                to: newEmail,
                 subject: 'T Online Email Address Updated',
                 html: `<h2 style="font-size: 24px; color: darkblue">T Online Email Address Updated</h2>
                     <p>Please verify your updated email address by clicking the link below</p><br />
@@ -198,10 +199,17 @@ module.exports = {
 
             });
             delete updatedRecord[0].pw_hash;
-            res.send(updatedRecord[0]);
+            req.session.user = updatedRecord[0];
+            res.send(req.session.user);
         } catch (err) {
             console.error(err);
             return res.status(500).send(err);
         }
+    },
+    async updatePassword(req, res) {
+        const db = req.app.get('db');
+        const { newPassword } = req.body;
+        console.log(newPassword);
+        res.sendStatus(200);
     }
 }

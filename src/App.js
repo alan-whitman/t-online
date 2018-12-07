@@ -14,6 +14,7 @@ class App extends Component {
             isLoggedIn: false,
             user: {},
             authError: '',
+            settingsMsg: '',
             showMenu: true,
             loading: true,
             settings: {
@@ -34,13 +35,15 @@ class App extends Component {
         this.updateSettings = this.updateSettings.bind(this);
         this.deleteAccount = this.deleteAccount.bind(this);
         this.updateVerificationStatus = this.updateVerificationStatus.bind(this);
+        this.updateEmail = this.updateEmail.bind(this);
     }
     componentDidMount() {
         axios.get('/auth/current_user').then(res => {
             if (res.data.settings)
                 this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
-            if (res.data.user)
-                this.setState({user: res.data.user, isLoggedIn: true, loading: false})
+            if (res.data.user)  {
+                this.setState({user: res.data.user, isLoggedIn: true, loading: false});
+            }
         }).catch(err => {console.log(err); this.setState({loading: false})});
     }
     logout() {
@@ -84,8 +87,8 @@ class App extends Component {
     }
     updateEmail(newEmail) {
         axios.put('/auth/update_email', {newEmail}).then(res => {
-
-        }).catch(err => console.error(err));
+            this.setState({settingsMsg: 'Email address updated, please check for a new verification email', user: res.data});
+        }).catch(err => this.setState({settingsMsg: err.response.data}));
     }
     updateVerificationStatus() {
         if (this.state.isLoggedIn)
@@ -122,6 +125,8 @@ class App extends Component {
                         updateEmail={this.updateEmail}
                         loading={this.state.loading}
                         updateVerificationStatus={this.updateVerificationStatus}
+                        settingsMsg={this.state.settingsMsg}
+                        logout={this.logout}
                     />
                 </div>}
             </Spring>
