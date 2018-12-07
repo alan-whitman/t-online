@@ -10,6 +10,7 @@ import Register from './Register';
 import Verify from './Verify';
 import PasswordChange from './PasswordChange';
 import ResetPassword from './ResetPassword';
+import Recover from './Recover';
 import { Switch, Route } from 'react-router-dom';
 
 import './Dashboard.css';
@@ -45,6 +46,7 @@ class Dashboard extends Component {
                         <Route path="/passwordchange" component={PasswordChange} />
                         <Route path="/resetpassword" component={ResetPassword} />
                         <Route path="/verify" render={(props) => <Verify {...props} loading={this.props.loading} updateVerificationStatus={this.props.updateVerificationStatus} /> } />
+                        <Route path="/recover" component={Recover} />
                         <Route path="/" component={Landing} />
                     </Switch>
                 </div>

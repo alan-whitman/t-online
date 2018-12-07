@@ -10,14 +10,6 @@
     width: 500px;
     margin-bottom: 15px;
 }
-.control-fields>div>input {
-    border: 2px solid lightgray;
-    outline: 0;
-}
-.control-fields>div>input:focus {
-    border: 2px solid darkblue;
-    outline: 0;
-}
 .user-settings div:nth-child(odd) {
     width: 58%;
     padding: 15px 0px;
@@ -33,6 +25,14 @@
 }
 .user-settings div:nth-last-child(2) {
     border-bottom: none;
+}
+.control-fields>div>input {
+    border: 2px solid lightgray;
+    outline: 0;
+}
+.control-fields>div>input:focus {
+    border: 2px solid darkblue;
+    outline: 0;
 }
 .control-fields div>input {
     width: 90px;

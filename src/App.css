@@ -9,6 +9,9 @@ button {
 .App {
   padding: 80px 0px 0px 0px;
 }
+p {
+  margin-bottom: 10px;
+}
 a {
   text-decoration: none;
   color: black;

@@ -37,6 +37,7 @@ app.use(express.static(`${__dirname}/../build`));
 app.post('/auth/register', ac.register);
 app.post('/auth/login', ac.login);
 app.post('/auth/verify', ac.verify);
+app.post('/auth/reset_password_request', ac.resetPasswordRequest);
 app.get('/auth/current_user', ac.currentUser);
 app.get('/auth/logout', ac.logout);
 app.get('/auth/resend_verification', ac.resendVerification);

@@ -55,7 +55,6 @@ module.exports = {
                     console.error(err);
                     return res.status(409).send('Problem sending email');
                 }
-
             });
 
             const user = await db.auth_register({username, email, pw_hash, verificationString});
@@ -162,7 +161,6 @@ module.exports = {
                     console.error(err);
                     return res.status(409).send('Problem sending email');
                 }
-
             });
             res.sendStatus(200);
         } catch (err) {
@@ -196,7 +194,6 @@ module.exports = {
                     console.error(err);
                     return res.status(409).send('Problem sending email');
                 }
-
             });
             delete updatedRecord[0].pw_hash;
             req.session.user = updatedRecord[0];
@@ -216,6 +213,42 @@ module.exports = {
             let updatedRecord = await db.auth_update_password([pw_hash, req.session.user.user_id]);
             if (!updatedRecord[0])
                 return res.status(409).send('Unable to find record to update');
+            res.sendStatus(200);
+        } catch (err) {
+            console.error(err);
+            res.status(500).send(err);
+        }
+    },
+    async resetPasswordRequest(req, res) {
+        try {
+            const db = req.app.get('db');
+            const { email } = req.body;
+            let user = await db.auth_get_user_by_email(email);
+            if (!user[0])
+                return res.status(409).send('No matching email address found.')
+            if (!user[0].verified)
+                return res.status(409).send('The email address associated with this account was never verified, and cannot be used for recovery. Please contact support for additional assistance.')
+            const recoveryCode = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            let recoveryRecord = await db.auth_create_recovery_code(user[0].user_id, recoveryCode);
+
+            const message = {
+                from: 'play.t.online@gmail.com',
+                to: email,
+                subject: 'T Online Password Reset',
+                html: `<h2 style="font-size: 24px; color: darkblue">T Online Password Reset</h2>
+                    <p>A request was made to reset the password associated with your email address. If you did not submit this request, please disregard this email.</p>
+                    <p>To change your password, click the link below.</p><br />
+                    <a style="background-color: darkblue; color: white; text-decoration: none; font-size: 16px; padding: 15px 15px; border-radius: 3px" href="${process.env.ACTIVE_PATH}#/recover?rc=${recoveryCode}">Click Here To Change Your Password</a>
+                    <br /><br />
+                    <p>Thanks!</p>
+                    <p>The T Online Team</p>`
+            }
+            transporter.sendMail(message, (err, info) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(409).send('Problem sending email');
+                }
+            });
             res.sendStatus(200);
         } catch (err) {
             console.error(err);
