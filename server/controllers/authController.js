@@ -179,7 +179,7 @@ module.exports = {
             if (checkReply[0])
                 return res.status(409).send('Email address already in use');
             const verificationString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            const updatedRecord = await db.auth_update_email([newEmail, req.session.user.user_id, verificationString]);
+            let updatedRecord = await db.auth_update_email([newEmail, req.session.user.user_id, verificationString]);
             const message = {
                 from: 'play.t.online@gmail.com',
                 to: newEmail,
@@ -207,9 +207,19 @@ module.exports = {
         }
     },
     async updatePassword(req, res) {
-        const db = req.app.get('db');
-        const { newPassword } = req.body;
-        console.log(newPassword);
-        res.sendStatus(200);
+        try {
+            const db = req.app.get('db');
+            const { newPassword } = req.body;
+            if (newPassword.trim() === '')
+                return res.status(409).send('Not sure how we ended up with a zero length string here, but that ain\'t gonna work');
+            const pw_hash = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10));
+            let updatedRecord = await db.auth_update_password([pw_hash, req.session.user.user_id]);
+            if (!updatedRecord[0])
+                return res.status(409).send('Unable to find record to update');
+            res.sendStatus(200);
+        } catch (err) {
+            console.error(err);
+            res.status(500).send(err);
+        }
     }
 }
