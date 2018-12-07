@@ -46,7 +46,7 @@ class Dashboard extends Component {
                         <Route path="/passwordchange" component={PasswordChange} />
                         <Route path="/resetpassword" component={ResetPassword} />
                         <Route path="/verify" render={(props) => <Verify {...props} loading={this.props.loading} updateVerificationStatus={this.props.updateVerificationStatus} /> } />
-                        <Route path="/recover" component={Recover} />
+                        <Route path="/recover" render={(props) => <Recover {...props} logout={this.props.logout} />} />
                         <Route path="/" component={Landing} />
                     </Switch>
                 </div>

@@ -43,7 +43,10 @@ class App extends Component {
                 this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
             if (res.data.user)  {
                 this.setState({user: res.data.user, isLoggedIn: true, loading: false});
+            } else {
+                this.setState({loading: false});
             }
+            
         }).catch(err => {console.log(err); this.setState({loading: false})});
     }
     logout() {

@@ -254,5 +254,23 @@ module.exports = {
             console.error(err);
             res.status(500).send(err);
         }
+    },
+    async recoverAccount(req, res) {
+        try {
+            const db = req.app.get('db');
+            const { newPassword, recoveryCode } = req.body;
+            const recoveryRecord = await db.auth_get_id_by_recovery_code(recoveryCode);
+            if (!recoveryRecord[0])
+                return res.status(409).send('Invalid recovery code.');
+            const pw_hash = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10));
+            let updatedRecord = await db.auth_update_password([pw_hash, recoveryRecord[0].user_id]);
+            if (!updatedRecord[0])
+                return res.status(409).send('Unable to find record to update');
+            await db.auth_delete_recovery_record(recoveryCode);
+            res.sendStatus(200);
+        } catch (err) {
+            console.error(err);
+            res.status(500).send(err);
+        }
     }
 }

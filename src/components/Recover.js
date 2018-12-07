@@ -27,13 +27,15 @@ class Recover extends Component {
         this.setState({[name]: value});
     }
     recoverAccount() {
+        this.setState({msg: ''});
         if (this.state.newPassword.trim() === '')
             return this.setState({msg: 'Your new password cannot be a zero length string.'})
         if (this.state.newPassword !== this.state.newPasswordConfirm)
             return this.setState({msg: 'Your new password must be the same in both fields.'});
         const { newPassword, recoveryCode } = this.state;
         axios.post('/auth/recover_account', {newPassword, recoveryCode}).then(res => {
-
+            this.props.logout();
+            this.props.history.push('/passwordchange');
         }).catch(err => this.setState({msg: err.response.data}));
     }
     render() {
