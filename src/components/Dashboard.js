@@ -9,13 +9,13 @@ import Profile from './Profile';
 import Register from './Register';
 import Verify from './Verify';
 import PasswordChange from './PasswordChange';
+import ResetPassword from './ResetPassword';
 import { Switch, Route } from 'react-router-dom';
 
 import './Dashboard.css';
 
 
 class Dashboard extends Component {
-
     render() {
         return (
             <div className="Dashboard">
@@ -43,6 +43,7 @@ class Dashboard extends Component {
                         />
                         <Route path="/register" component={Register} />
                         <Route path="/passwordchange" component={PasswordChange} />
+                        <Route path="/resetpassword" component={ResetPassword} />
                         <Route path="/verify" render={(props) => <Verify {...props} loading={this.props.loading} updateVerificationStatus={this.props.updateVerificationStatus} /> } />
                         <Route path="/" component={Landing} />
                     </Switch>

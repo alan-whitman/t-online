@@ -17,7 +17,7 @@ class Landing extends Component {
     }
     componentDidMount() {
         this.buildT();
-        const interval = setInterval(this.makeItRain, 500);
+        const interval = setInterval(this.makeItRain, 250);
         this.setState({interval});
         this.makeItRain();
     }
@@ -48,7 +48,7 @@ class Landing extends Component {
         const rotationDirection = Math.floor(Math.random() * 2) === 0 ? 'left' : 'right';
         const blockType = convertBoardCodeToShape(Math.floor(Math.random() * 7) + 1).toLowerCase();
         pieces.push(            
-            <div key={this.state.keyCount} className={blockType + ' splash-block'} style={{left, animation: 'piece-spin-' + rotationDirection + ' infinite 5s linear, piece-drop 1 10s linear forwards'}}>
+            <div key={this.state.keyCount} className={blockType + ' splash-block'} style={{left, animation: 'piece-spin-' + rotationDirection + ' infinite 5s linear, piece-drop 1 5s linear forwards'}}>
                 <div></div>
                 <div></div>
                 <div></div>

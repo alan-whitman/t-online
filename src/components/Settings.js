@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './Settings.css';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
     
 class Settings extends Component {
@@ -113,7 +114,11 @@ class Settings extends Component {
                 <h2>User Settings</h2>
                 <hr />
                 {!this.props.isLoggedIn ?
-                    <p>Note: user settings will be lost if you leave this site or close your browser. In order to save user settings, please log in.</p>
+                    <div className="not-logged-in">
+                        <p>Note: user settings will be lost if you leave this site or close your browser. In order to save user settings, please log in.</p>
+                        <p>If you need to reset your password, click <Link to="/resetpassword">here</Link>.</p>
+                        <hr />
+                    </div>
                 : null}
                 <h3>Controls</h3>
                 <div className="user-settings control-fields">

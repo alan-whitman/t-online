@@ -53,8 +53,8 @@ class Header extends Component {
                                 
                             </div>
                         :
-                            <div>
-                                <input name="username" placeholder="Username" value={this.state.username} onKeyPress={e => {if (e.key === "Enter") this.login()}} onChange={e => this.handleInput(e)} /> 
+                            <div className="login-fields">
+                                <input name="username" placeholder="Username" value={this.state.username} onKeyPress={e => {if (e.key === "Enter") this.login()}} onChange={e => this.handleInput(e)} />
                                 <input name="password" type="password" placeholder="Password" value={this.state.password} onKeyPress={e => {if (e.key === "Enter") this.login()}} onChange={e => this.handleInput(e)} />
                                 <button className="login-button" onClick={e => this.login()}>Login</button>
                                 <button className="login-button" onClick={e => this.setState({registering: true})}>Register</button>

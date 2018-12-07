@@ -40,3 +40,10 @@
 .field {
     width: 200px;
 }
+
+.not-logged-in p {
+    margin-bottom: 10px;
+}
+.not-logged-in a {
+    color: darkblue;
+}

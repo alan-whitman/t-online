@@ -100,7 +100,7 @@ class App extends Component {
             <Spring
                 from={{paddingTop: ptv}}
                 to={{paddingTop: ptv}}
-                config={{friction: 0, clamp: true}}
+                config={{friction: 2, tension: 210, clamp: true}}
             >
                 {props => <div style={props} className="App">
                     <Header 
