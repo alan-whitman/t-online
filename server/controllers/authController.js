@@ -167,9 +167,41 @@ module.exports = {
             console.error(err);
             return res.status(500).send(err);
         }
-
     },
-    async updateEmail() {
+    async updateEmail(req, res) {
+        try {
+            const db = req.app.get('db');
+            const { newEmail } = req.body;
 
+            let checkReply = await db.auth_get_user_by_email(newEmail);
+            if (checkReply[0])
+                return res.status(409).send('Email address already in use');
+
+            const updatedRecord = await db.auth_update_email([newEmail, req.session.user.user_id]);
+            const verificationString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            const message = {
+                from: 'play.t.online@gmail.com',
+                to: email,
+                subject: 'T Online Email Address Updated',
+                html: `<h2 style="font-size: 24px; color: darkblue">T Online Email Address Updated</h2>
+                    <p>Please verify your updated email address by clicking the link below</p><br />
+                    <a style="background-color: darkblue; color: white; text-decoration: none; font-size: 16px; padding: 15px 15px; border-radius: 3px" href="${process.env.ACTIVE_PATH}#/verify?vc=${verificationString}">Click Here To Verify</a>
+                    <br /><br />
+                    <p>Thanks!</p>
+                    <p>The T Online Team</p>`
+            }
+            transporter.sendMail(message, (err, info) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(409).send('Problem sending email');
+                }
+
+            });
+            delete updatedRecord[0].pw_hash;
+            res.send(updatedRecord[0]);
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send(err);
+        }
     }
 }
