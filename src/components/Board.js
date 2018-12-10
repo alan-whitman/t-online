@@ -6,11 +6,10 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import './Board.css';
 import Message from './Message';
 import { clearTopLine, getPotentialBlock, canMove, writeBoard, createBoard, addGarbage } from '../controllers/board_controller';
-import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape } from '../controllers/tetrominos';
+import { getPieceBlocks, shuffleShapes, convertBoardCodeToShape, getCenterOffset } from '../controllers/tetrominos';
 
 let socket = {disconnect () {}};
 
-const BLOCK_SCALE = 21;
 const LEFT = 'LEFT';
 const RIGHT = 'RIGHT';
 const DOWN = 'DOWN';
@@ -46,6 +45,7 @@ class Board extends Component {
             countDownTimers: [],
             b2btetris: false,
             garbagePile: 0,
+            blockScale: this.props.settings.blockScale,
             piece: {
                 x: INITIAL_X,
                 y: INITIAL_Y,
@@ -522,16 +522,25 @@ class Board extends Component {
         }
     }
 
+    changeBlockScale(increaseOrDecrease) {
+        const newBlockScale = increaseOrDecrease === 'increase' ? this.state.blockScale + 1 : this.state.blockScale - 1;
+        if (newBlockScale < 11 || newBlockScale > 100)
+            return;
+        this.props.updateBlockScale(newBlockScale);
+        this.setState({blockScale: newBlockScale});
+        this.boardRef.current.focus();
+        
+    }
     renderPieces() {
         let renderCoords = getPieceBlocks(this.state.piece);
         let pieceRender = [];
         for (let i = 0; i < renderCoords.length; i++) {
-            pieceRender.push(<div key={'piece ' + i} className={'block ' + this.state.piece.shape} style={{left: renderCoords[i].x * BLOCK_SCALE, bottom:  (renderCoords[i].y - 1) * BLOCK_SCALE + 2, width: BLOCK_SCALE - 1 , height: BLOCK_SCALE - 1}} />)
+            pieceRender.push(<div key={'piece ' + i} className={'block ' + this.state.piece.shape} style={{left: renderCoords[i].x * this.state.blockScale, bottom:  (renderCoords[i].y) * this.state.blockScale + 3, width: this.state.blockScale - 1 , height: this.state.blockScale - 1}} />)
         }
         let shadowPiece = this.getShadow();
         renderCoords = getPieceBlocks(shadowPiece);
         for (let i = 0; i < renderCoords.length; i++) {
-            pieceRender.push(<div key={'shadow ' + i} className="block shadow" style={{left: renderCoords[i].x * BLOCK_SCALE, bottom:  (renderCoords[i].y - 1) * BLOCK_SCALE + 2, width: BLOCK_SCALE - 1 , height: BLOCK_SCALE - 1}} />)
+            pieceRender.push(<div key={'shadow ' + i} className="block shadow" style={{left: renderCoords[i].x * this.state.blockScale, bottom:  (renderCoords[i].y) * this.state.blockScale + 3, width: this.state.blockScale - 1 , height: this.state.blockScale - 1}} />)
         }
         const nextPiece = {
             orientation: 0,
@@ -541,7 +550,13 @@ class Board extends Component {
         }
         renderCoords = getPieceBlocks(nextPiece);
         for (let i = 0; i < renderCoords.length; i++) {
-            pieceRender.push(<div key={'next ' + i} className={'block ' + nextPiece.shape} style={{left: renderCoords[i].x * BLOCK_SCALE + BLOCK_SCALE * 14, bottom:renderCoords[i].y * BLOCK_SCALE + Math.floor(BLOCK_SCALE * 16.5), width: BLOCK_SCALE - 1, height: BLOCK_SCALE - 1}} />)
+            const offset = getCenterOffset(nextPiece.shape, this.state.blockScale);
+            pieceRender.push(<div key={'next ' + i} className={'block ' + nextPiece.shape} style={{
+                left: renderCoords[i].x * this.state.blockScale + this.state.blockScale * 12 + Math.floor(this.state.blockScale / 2) + Math.floor(this.state.blockScale * 2.25) + offset.x,
+                bottom: renderCoords[i].y * this.state.blockScale + Math.floor(this.state.blockScale * 20) - offset.y, 
+                width: this.state.blockScale - 1, 
+                height: this.state.blockScale - 1
+            }}/>)
         }
         if (this.state.heldPiece) {
             const heldPiece = {
@@ -551,8 +566,15 @@ class Board extends Component {
                 shape: this.state.heldPiece
             }
             renderCoords = getPieceBlocks(heldPiece);
+            
             for (let i = 0; i < renderCoords.length; i++) {
-                pieceRender.push(<div key={'held ' + i} className={'block ' + heldPiece.shape} style={{left: renderCoords[i].x * BLOCK_SCALE + BLOCK_SCALE * 14, bottom:renderCoords[i].y * BLOCK_SCALE + Math.floor(BLOCK_SCALE * 10), width: BLOCK_SCALE - 1, height: BLOCK_SCALE - 1}} />)
+                const offset = getCenterOffset(heldPiece.shape, this.state.blockScale);
+                pieceRender.push(<div key={'held ' + i} className={'block ' + heldPiece.shape} style={{
+                    left: renderCoords[i].x * this.state.blockScale + this.state.blockScale * 12 + Math.floor(this.state.blockScale / 2) + Math.floor(this.state.blockScale * 2.25) + offset.x, 
+                    bottom: renderCoords[i].y * this.state.blockScale + Math.floor(this.state.blockScale * 13.5) - offset.y, 
+                    width: this.state.blockScale - 1, 
+                    height: this.state.blockScale - 1
+                }}/>)
             }
         }
         return pieceRender;
@@ -563,19 +585,22 @@ class Board extends Component {
         for (let x = 0; x < 12; x++) {
             boardGrid[x] = [];
             for (let y = 0; y < 23; y++) {
-                if (y > 20)
+                let additionalClass = '';
+                if (y === 21 && x >= 1 && x <= 10)
+                    additionalClass = 'top-border-fix';
+                if (y > 21)
                     if (x !== 0 && x !== 11)
                         break;
                 const shape = convertBoardCodeToShape(board[x][y])
-                const blockWidth = shape === 'E' || shape === 'B' ? BLOCK_SCALE : BLOCK_SCALE - 1;
-                const pieceClass = 'block ' + shape;
+                const blockWidth = this.state.blockScale;
+                const pieceClass = 'landed block ' + shape + ' ' + additionalClass;
                 if (x === 0) {
                     if (y > 0)
-                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: (x) * BLOCK_SCALE - 1, width: blockWidth + 1, height: blockWidth, borderRight: '1px solid lightgrey'}} className={pieceClass} />;
+                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (22 - y) * this.state.blockScale - 1, left: (x) * this.state.blockScale - 1, width: blockWidth + 1, height: blockWidth, borderRight: '1px solid lightgrey'}} className={pieceClass} />;
                     else
-                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: (x) * BLOCK_SCALE - 1, width: blockWidth + 1, height: blockWidth}} className={pieceClass} />;    
+                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (22 - y) * this.state.blockScale - 1, left: (x) * this.state.blockScale - 1, width: blockWidth + 1, height: blockWidth}} className={pieceClass} />;    
                 } else {
-                    boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: (x) * BLOCK_SCALE, width: blockWidth, height: blockWidth}} className={pieceClass} />;
+                    boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (22 - y) * this.state.blockScale - 1, left: (x) * this.state.blockScale, width: blockWidth , height: blockWidth}} className={pieceClass} />;
                 }                
             }
         }
@@ -588,8 +613,8 @@ class Board extends Component {
             boardGrid[x] = [];
             for (let y = 0; y < 23; y++) {
                 const shape = convertBoardCodeToShape(board[x][y])
-                const blockWidth = shape === 'E' || shape === 'B' ? BLOCK_SCALE : BLOCK_SCALE - 1;
-                const pieceClass = 'block ' + shape;
+                const blockWidth = this.state.blockScale;
+                const pieceClass = 'landed block ' + shape;
                 if (shape === 'E' && y > 21)
                     break;
                 let br;
@@ -597,11 +622,11 @@ class Board extends Component {
                     br = 'none';
                 if (x === 0) {
                     if (y > 0)
-                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE - 1) + BLOCK_SCALE * 18 - 9, width: blockWidth + 1, height: blockWidth, borderRight: '1px solid lightgrey'}} className={pieceClass} />;
+                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (22 - y) * this.state.blockScale - 1, left: ((x) * this.state.blockScale - 1) + Math.floor(this.state.blockScale * 17.5), width: blockWidth + 1, height: blockWidth, borderRight: '1px solid lightgrey'}} className={pieceClass} />;
                     else
-                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE - 1) + BLOCK_SCALE * 18 - 9, width: blockWidth + 1, height: blockWidth}} className={pieceClass} />;    
+                        boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (22 - y) * this.state.blockScale - 1, left: ((x) * this.state.blockScale - 1) + Math.floor(this.state.blockScale * 17.5), width: blockWidth + 1, height: blockWidth}} className={pieceClass} />;    
                 } else {
-                    boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (20 - y) * BLOCK_SCALE - 1, left: ((x) * BLOCK_SCALE) + BLOCK_SCALE * 18 - 9, width: blockWidth, height: blockWidth, borderRight: br}} className={pieceClass} />;
+                    boardGrid[x][y] = <div key={`x: ${x}, y: ${y}`} style={{top: (22 - y) * this.state.blockScale - 1, left: ((x) * this.state.blockScale) + Math.floor(this.state.blockScale * 17.5), width: blockWidth, height: blockWidth, borderRight: br}} className={pieceClass} />;
                 }                
             }
         }
@@ -609,8 +634,7 @@ class Board extends Component {
     }
 
     render() {
-        // console.log(this.state.lost);
-        const messageOffset = this.props.mode === 'sp' ? BLOCK_SCALE * 15 + 50 : BLOCK_SCALE * 28 + 50; 
+        const messageOffset = this.props.mode === 'sp' ? this.state.blockScale * 15 + Math.floor(this.state.blockScale * 2.5) - 1 : this.state.blockScale * 28 + + Math.floor(this.state.blockScale * 2) - 1;
         return (
             <div className="Board">
                 {this.props.mode === 'sp' ?
@@ -628,16 +652,18 @@ class Board extends Component {
                     {this.state.mpGameOver ?
                         <button onClick={this.startNewMpGame} className="ui-button">Play another game</button>
                     : null}
+                    <button onClick={e => this.changeBlockScale('decrease')} className="ui-button">-</button>
+                    <button onClick={e => this.changeBlockScale('increase')} className="ui-button">+</button>
                 </div>
                 
-                <div className="board" tabIndex="0" style={{width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 20 + 1}} ref={this.boardRef} onKeyDown={e => this.handleInput(e)}>
-                    <div className="holder" style={{width: BLOCK_SCALE * 4 + 10, height: BLOCK_SCALE * 6, left: BLOCK_SCALE * 12 + 10, top: -1}}>
+                <div className="board" tabIndex="0" style={{width: this.state.blockScale * 12, height: this.state.blockScale * 23 + 1}} ref={this.boardRef} onKeyDown={e => this.handleInput(e)}>
+                    <div className="holder" style={{width: Math.floor(this.state.blockScale * 4.5), height: this.state.blockScale * 6, left: this.state.blockScale * 12 + Math.floor(this.state.blockScale / 2), top: this.state.blockScale * 2 - 1, fontSize: Math.floor(this.state.blockScale * .75)}}>
                         Next
                     </div>
-                    <div className="holder" style={{width: BLOCK_SCALE * 4 + 10, height: BLOCK_SCALE * 6, left: BLOCK_SCALE * 12 + 10, top: BLOCK_SCALE * 6 + 9}}>
+                    <div className="holder" style={{width: Math.floor(this.state.blockScale * 4.5), height: this.state.blockScale * 6, left: this.state.blockScale * 12 + Math.floor(this.state.blockScale / 2), top: this.state.blockScale * 8 + Math.floor(this.state.blockScale / 2) - 1, fontSize: Math.floor(this.state.blockScale * .75)}}>
                         Hold
                     </div>
-                    <div className="message-holder" ref={this.messageRef} style={{left: messageOffset, top: -1, width: BLOCK_SCALE * 12, height: BLOCK_SCALE * 12 + 10}}>
+                    <div className="message-holder" ref={this.messageRef} style={{left: messageOffset, top: this.state.blockScale * 2 - 1, width: this.state.blockScale * 12, height: this.state.blockScale * 12 + Math.floor(this.state.blockScale / 2), fontSize: Math.floor(this.state.blockScale * .75)}}>
                         <ReactCSSTransitionGroup
                             transitionName="message"
                             transitionEnterTimeout={200}
@@ -647,6 +673,21 @@ class Board extends Component {
                     </div>
                     {this.renderBoard()}
                     {this.props.mode === 'mp' ? this.renderOpBoard() : null}
+                    {this.props.mode === 'mp' ? 
+                        <div className="opponent-label" style={{
+                            left: 0, 
+                            bottom: -this.state.blockScale,
+                            width: this.state.blockScale * 12
+                        }}>{this.props.user.username}</div>    
+                    
+                    : null}
+                    {this.state.op ?
+                        <div className="opponent-label" style={{
+                            left: Math.floor(this.state.blockScale * 17.5), 
+                            bottom: -this.state.blockScale,
+                            width: this.state.blockScale * 12
+                        }}>{this.state.op}</div>    
+                    : null}
                     {this.props.isLoggedIn || this.props.mode === 'sp' ? this.renderPieces() : null}
                 </div>
             </div>

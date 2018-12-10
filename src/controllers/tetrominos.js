@@ -40,6 +40,46 @@ export const shuffleShapes = () => {
   return shapes;
 }
 
+export const getCenterOffset = (shape, blockScale) => {
+    let x, y;
+    switch (shape) {
+        case 'T':
+            x = -Math.floor(blockScale / 2);
+            y = blockScale * 3;
+            break;
+        case 'I':
+            x = -Math.floor(blockScale / 2);
+            y = blockScale * 2;
+            break;
+        case 'O':
+            x = -blockScale;
+            y = blockScale * 2;
+            break;
+        case 'S':
+            x = -Math.floor(blockScale / 2);
+            y = blockScale * 3;
+            break;
+        case 'Z':
+            x = -Math.floor(blockScale / 2);
+            y = blockScale * 3;
+            break;
+        case 'J':
+            x = 0;
+            y = Math.floor(blockScale * 2.5);
+            break;
+        case 'L':
+            x = -blockScale;
+            y = Math.floor(blockScale * 2.5);
+            break;
+        default:
+            x = 0;
+            y = 0;
+    }
+
+    return {x, y};
+
+}
+
 // returns collision block for the current shape
 
 export const getPieceBlocks = (piece) => {

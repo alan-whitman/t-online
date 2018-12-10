@@ -25,7 +25,8 @@ class App extends Component {
                 rotateCounterClockwise: 'z',
                 hardDrop: 'ArrowUp',
                 holdPiece: 'c',
-                pause: 'Space'
+                pause: 'Space',
+                blockScale: 21
             }
         }
         this.login = this.login.bind(this);
@@ -36,6 +37,7 @@ class App extends Component {
         this.deleteAccount = this.deleteAccount.bind(this);
         this.updateVerificationStatus = this.updateVerificationStatus.bind(this);
         this.updateEmail = this.updateEmail.bind(this);
+        this.updateBlockScale = this.updateBlockScale.bind(this);
     }
     componentDidMount() {
         axios.get('/auth/current_user').then(res => {
@@ -97,6 +99,9 @@ class App extends Component {
         if (this.state.isLoggedIn)
             return this.setState({user: {...this.state.user, verified: true}});
     }
+    updateBlockScale(newBlockScale) {
+        this.setState({settings: {...this.state.settings, blockScale: newBlockScale}});
+    }
     render() {
         const ptv = this.state.showMenu ? 80 : 40;
         return (
@@ -130,6 +135,7 @@ class App extends Component {
                         updateVerificationStatus={this.updateVerificationStatus}
                         settingsMsg={this.state.settingsMsg}
                         logout={this.logout}
+                        updateBlockScale={this.updateBlockScale}
                     />
                 </div>}
             </Spring>
