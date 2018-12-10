@@ -60,8 +60,9 @@ class Landing extends Component {
         this.setState({pieces, keyCount: this.state.keyCount + 1});
     }
     render() {
+        const docWidth = document.documentElement.clientWidth;
         return (
-            <div className="Landing" ref={this.landingRef}>
+            <div className="Landing" ref={this.landingRef} style={{position: 'relative', left: Math.floor(docWidth / 2) - 350}}>
                 <div>
                     {this.state.pieces}
                 </div>
