@@ -68,6 +68,7 @@ app.get('/mp/rankings', mp.getRankings);
 */
 
 app.post('/settings/update', sc.updateSettings);
+app.post('/settings/blockscale', sc.updateBlockScale);
 
 /*
     Mail endpoints

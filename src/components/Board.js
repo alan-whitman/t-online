@@ -677,7 +677,8 @@ class Board extends Component {
                         <div className="opponent-label" style={{
                             left: 0, 
                             bottom: -this.state.blockScale,
-                            width: this.state.blockScale * 12
+                            width: this.state.blockScale * 12,
+                            fontSize: this.state.blockScale + 3
                         }}>{this.props.user.username}</div>    
                     
                     : null}
@@ -685,8 +686,18 @@ class Board extends Component {
                         <div className="opponent-label" style={{
                             left: Math.floor(this.state.blockScale * 17.5), 
                             bottom: -this.state.blockScale,
-                            width: this.state.blockScale * 12
+                            width: this.state.blockScale * 12,
+                            fontSize: this.state.blockScale + 3 
                         }}>{this.state.op}</div>    
+                    : null}
+                    {this.state.paused ?
+                        <div className="paused" style={{
+                            left: Math.floor(this.state.blockScale * 17.5), 
+                            bottom: this.state.blockScale * 8,
+                            width: this.state.blockScale * 12,
+                            fontSize: this.state.blockScale + 3,
+                            textAlign: 'center'
+                        }}>Paused</div>
                     : null}
                     {this.props.isLoggedIn || this.props.mode === 'sp' ? this.renderPieces() : null}
                 </div>

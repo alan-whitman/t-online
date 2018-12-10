@@ -13,7 +13,6 @@
 }
 .opponent-label {
     position: absolute;
-    font-size: 24px;
     font-weight: bold;
     text-align: center;
 }
@@ -93,6 +92,22 @@
 /*
     Message window        
 */
+
+.paused {
+    animation: pause-animation 5s linear 0s infinite alternate;
+    z-index: 10000;
+}
+@keyframes pause-animation {
+    from {
+        color: red;
+        text-shadow: 2px 2px 4px green;
+    }
+    to {
+        color: green;
+        text-shadow: 2px 2px 4px red;
+    }
+}
+
 
 .message-holder   {
     border: 1px solid lightgrey;

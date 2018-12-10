@@ -53,7 +53,6 @@ module.exports = {
             transporter.sendMail(message, (err, info) => {
                 if (err) {
                     console.error(err);
-                    return res.status(409).send('Problem sending email');
                 }
             });
 
@@ -159,7 +158,6 @@ module.exports = {
             transporter.sendMail(message, (err, info) => {
                 if (err) {
                     console.error(err);
-                    return res.status(409).send('Problem sending email');
                 }
             });
             res.sendStatus(200);
@@ -192,7 +190,6 @@ module.exports = {
             transporter.sendMail(message, (err, info) => {
                 if (err) {
                     console.error(err);
-                    return res.status(409).send('Problem sending email');
                 }
             });
             delete updatedRecord[0].pw_hash;
@@ -246,7 +243,6 @@ module.exports = {
             transporter.sendMail(message, (err, info) => {
                 if (err) {
                     console.error(err);
-                    return res.status(409).send('Problem sending email');
                 }
             });
             res.sendStatus(200);

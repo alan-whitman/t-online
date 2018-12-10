@@ -42,7 +42,7 @@ class App extends Component {
     componentDidMount() {
         axios.get('/auth/current_user').then(res => {
             if (res.data.settings)
-                this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
+                this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause, blockScale: res.data.settings.blockscale}});
             if (res.data.user)  {
                 this.setState({user: res.data.user, isLoggedIn: true, loading: false});
             } else {
@@ -53,7 +53,7 @@ class App extends Component {
     }
     logout() {
         axios.get('/auth/logout').then(res => {
-            this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space'}});
+            this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space', blockScale: 21}});
         }).catch(err => console.log(err));
         
     }
@@ -62,9 +62,8 @@ class App extends Component {
             return this.setState({authError: 'Please enter a username and password'});
         axios.post('/auth/login', {username, password}).then(res => {
             if (res.data.settings)
-                this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause}});
+                this.setState({settings: {...this.state.settings, left: res.data.settings.moveleft, right: res.data.settings.moveright, down: res.data.settings.movedown, rotateClockwise: res.data.settings.rotateclockwise, rotateCounterClockwise: res.data.settings.rotatecounterclockwise, hardDrop: res.data.settings.harddrop, holdPiece: res.data.settings.holdpiece, pause: res.data.settings.pause, blockScale: res.data.settings.blockscale}});
             this.setState({user: res.data.user, isLoggedIn: true, authError: ''})
-
         }).catch(err => this.setState({authError: err.response.data}));
     }
     register(username, email, password) {
@@ -75,7 +74,7 @@ class App extends Component {
         }).catch(err => this.setState({authError: err.response.data}));
     }
     updateSettings(newSettings) {
-            this.setState({settings: newSettings});
+            this.setState({settings: {...this.state.settings, newSettings}});
             if (this.state.isLoggedIn)
                 axios.post('/settings/update', newSettings).catch(err => console.error(err));
     }
@@ -84,7 +83,7 @@ class App extends Component {
     }
     deleteAccount() {
         axios.delete('/auth/delete_account').then(res => {
-            this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space'}}, () => this.props.history.push('/'));
+            this.setState({user: {}, isLoggedIn: false, settings: {...this.state.settings, left: 'ArrowLeft', right: 'ArrowRight', down: 'ArrowDown', rotateClockwise: 'x', rotateCounterClockwise: 'z', hardDrop: 'ArrowUp', holdPiece: 'c', pause: 'Space', blockScale: 21}}, () => this.props.history.push('/'));
         }).catch(err => console.error(err));
     }
     resendVerification() {
@@ -101,6 +100,11 @@ class App extends Component {
     }
     updateBlockScale(newBlockScale) {
         this.setState({settings: {...this.state.settings, blockScale: newBlockScale}});
+        if (this.state.isLoggedIn) {
+            axios.post('/settings/blockscale', {newBlockScale}).then(res => {
+
+            }).catch(err => console.error(err));
+        }
     }
     render() {
         const ptv = this.state.showMenu ? 80 : 40;
