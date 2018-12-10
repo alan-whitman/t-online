@@ -74,9 +74,10 @@ class App extends Component {
         }).catch(err => this.setState({authError: err.response.data}));
     }
     updateSettings(newSettings) {
-            this.setState({settings: {...this.state.settings, newSettings}});
-            if (this.state.isLoggedIn)
-                axios.post('/settings/update', newSettings).catch(err => console.error(err));
+        newSettings.blockScale = this.state.settings.blockScale;
+        this.setState({settings: newSettings});
+        if (this.state.isLoggedIn)
+            axios.post('/settings/update', newSettings).catch(err => console.error(err));
     }
     toggleMenu() {
         this.setState({showMenu: !this.state.showMenu});

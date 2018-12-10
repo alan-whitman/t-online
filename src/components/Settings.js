@@ -107,6 +107,8 @@ class Settings extends Component {
     componentDidUpdate(prevProps) {
         if (prevProps.settingsMsg !== this.props.settingsMsg)
             this.setState({detailsMsg: this.props.settingsMsg});
+        if (prevProps.settings !== this.props.settings)
+            this.setState({settings: this.props.settings});
     }
     render() {
         return (
