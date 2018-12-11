@@ -384,7 +384,7 @@ class Board extends Component {
         return this.setState({heldPiece: this.state.piece.shape, swapped: true}, () => this.newPiece(true));
     if (!this.state.swapped) {
         let heldPiece = this.state.piece.shape;
-            return this.setState({piece: {...this.state.piece, shape: this.state.heldPiece, x: INITIAL_X, y: INITIAL_Y}, heldPiece, swapped: true});
+            return this.setState({piece: {...this.state.piece, shape: this.state.heldPiece, x: INITIAL_X, y: INITIAL_Y, orientation: 0}, heldPiece, swapped: true});
         }
     }
 
