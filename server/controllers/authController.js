@@ -58,6 +58,7 @@ module.exports = {
 
             const user = await db.auth_register({username, email, pw_hash, verificationString});
             delete user[0].pw_hash;
+            delete user[0].verification_code;
             req.session.user = user[0];
             return res.status(200).send(req.session.user);
         } catch (err) {
@@ -89,6 +90,7 @@ module.exports = {
             if (!bcrypt.compareSync(password, user[0].pw_hash))
                 return res.status(409).send('Incorrect password')
             delete user[0].pw_hash;
+            delete user[0].verification_code;
             req.session.user = user[0];
             let reply = {};
             reply.user = req.session.user;
