@@ -1,17 +1,19 @@
 const express = require('express');
-const app = express();
-const io = require('socket.io')();
 const session = require('express-session');
 const massive = require('massive');
 const bodyParser = require('body-parser');
+
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http, { pingTimeout: 15000, rejectUnauthorized: false });
+
 const ac = require('./controllers/authController');
 const sc = require('./controllers/settingsController');
-// const mc = require('./controllers/mailController');
 const sp = require('./controllers/spController');
 const mp = require('./controllers/mpController');
 require('dotenv').config();
 
-const { CONNECTION_STRING: cs, SOCKET_PORT: socketPort, EXPRESS_PORT: expressPort, SESSION_SECRET: ss } = process.env;
+const { CONNECTION_STRING: cs, EXPRESS_PORT: serverPort, SESSION_SECRET: ss } = process.env;
 
 massive(cs).then(db => {
     app.set('db', db);
@@ -80,7 +82,7 @@ app.post('/settings/blockscale', sc.updateBlockScale);
     Express Listen
 */
 
-app.listen(expressPort, () => console.log(expressPort));
+// app.listen(expressPort, () => console.log(expressPort));
 
 /*
     Socket stuff
@@ -129,4 +131,8 @@ io.on('connection', client => {
 });
 
 
-io.listen(socketPort);
+// io.listen(socketPort);
+
+http.listen(serverPort, () => {
+    console.log(`listening on port: ${serverPort}`)
+});

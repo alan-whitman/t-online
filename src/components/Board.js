@@ -68,9 +68,9 @@ class Board extends Component {
         this.messageRef = React.createRef();
     }
     componentDidMount() {
-        const socketPath = window.location.host.split(':')[0];
+        // const socketPath = window.location.host.split(':')[0];
         if (this.props.mode === 'mp' && this.props.isLoggedIn) {
-            socket = io(socketPath + ':4100');
+            socket = io();
 
             socket.on('relayBoard', opBoard => {
                 this.setState({opBoard});
