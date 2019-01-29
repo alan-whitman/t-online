@@ -1,1 +1,3 @@
-nothing here yet
+T Online is a Tetris clone featuring traditional single player gameplay as well as competitive multiplayer. I developed T Online as a personal project while I was a student at DevMountain. The front-end was written using React, while the backend is Node with Express. I additionally used Socket.io for real-time event communication in the multiplayer mode.
+
+React.js | Node.js | Socket.io | Express | PostreSQL | HTML5 | CSS3
